@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-mono;
+  }
+
+  * {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .glitch {
+    position: relative;
+  }
+
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .glitch::before {
+    animation: glitch-animation 0.2s infinite;
+    color: #FF10F0;
+    z-index: -1;
+    text-shadow: -2px 0 #9D4EDD;
+  }
+
+  .glitch::after {
+    animation: glitch-animation-reverse 0.2s infinite;
+    color: #9D4EDD;
+    z-index: -2;
+    text-shadow: 2px 0 #FF10F0;
+  }
+
+  @keyframes glitch-animation {
+    0% {
+      clip-path: rect(0, 900px, 0, 0);
+    }
+    20% {
+      clip-path: rect(10px, 900px, 25px, 0);
+    }
+    40% {
+      clip-path: rect(5px, 900px, 50px, 0);
+    }
+    60% {
+      clip-path: rect(20px, 900px, 5px, 0);
+    }
+    80% {
+      clip-path: rect(15px, 900px, 60px, 0);
+    }
+    100% {
+      clip-path: rect(0, 900px, 0, 0);
+    }
+  }
+
+  @keyframes glitch-animation-reverse {
+    0% {
+      clip-path: rect(0, 0, 0, 0);
+    }
+    20% {
+      clip-path: rect(5px, 0, 35px, 900px);
+    }
+    40% {
+      clip-path: rect(10px, 0, 30px, 900px);
+    }
+    60% {
+      clip-path: rect(0, 0, 60px, 900px);
+    }
+    80% {
+      clip-path: rect(10px, 0, 50px, 900px);
+    }
+    100% {
+      clip-path: rect(0, 0, 0, 0);
+    }
+  }
+}
