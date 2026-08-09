@@ -110,7 +110,7 @@ export const projectsData: Project[] = [
     githubUrl: "https://github.com/yourusername/project4",
     featured: false,
     screenshotUrl:
-      "https://images.pexels.com/photos/1118873/pexels-photo-1118873.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://imgur.com/a/FFBA54g",
   },
   {
     title: "FinnTrain Tracker",
