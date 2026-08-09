@@ -88,7 +88,7 @@ export const projectsData: Project[] = [
     githubUrl: "https://github.com/Fziyen/fziyenDotDev",
     featured: true,
     screenshotUrl:
-      "https://imgur.com/a/AJwsbH1",
+      "https://i.imgur.com/c5TMh8h.jpeg",
   },
   {
     title: "AlgoVision",
@@ -110,7 +110,7 @@ export const projectsData: Project[] = [
     githubUrl: "https://github.com/yourusername/project4",
     featured: false,
     screenshotUrl:
-      "https://imgur.com/a/FFBA54g",
+      "https://i.imgur.com/JAdgj9e.png",
   },
   {
     title: "FinnTrain Tracker",
