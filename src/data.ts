@@ -88,7 +88,7 @@ export const projectsData: Project[] = [
     githubUrl: "https://github.com/Fziyen/fziyenDotDev",
     featured: true,
     screenshotUrl:
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
+      "https://imgur.com/a/AJwsbH1",
   },
   {
     title: "AlgoVision",
