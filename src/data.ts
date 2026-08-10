@@ -75,7 +75,7 @@ export const projectsData: Project[] = [
       "A full-featured University event management platform platform",
     tech: ["React", "Node.js", "MongoDB"],
     liveUrl: "#",
-    githubUrl: "https://github.com/yourusername/project1",
+    githubUrl: "https://github.com/Fziyen/UniEventia",
     featured: true,
     screenshotUrl: "https://i.imgur.com/Fs9oqAD.png",
   },
@@ -96,7 +96,7 @@ export const projectsData: Project[] = [
       "Modern Website visualizing various sorting algorithms with animations and interactive controls.",
     tech: ["React", "TypeScript", "Framer Motion"],
     liveUrl: "#",
-    githubUrl: "https://github.com/yourusername/project3",
+    githubUrl: "https://github.com/Fziyen/AlgoVision",
     featured: false,
     screenshotUrl:
       "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800",
@@ -106,8 +106,8 @@ export const projectsData: Project[] = [
     description:
       "A web application that generates customizable QR codes for URLs, text, and other data types.",
     tech: ["React", "TypeScript", "Vite"],
-    liveUrl: "#",
-    githubUrl: "https://github.com/yourusername/project4",
+    liveUrl: "https://qr-codemaker.netlify.app",
+    githubUrl: "https://github.com/Fziyen/QR-Editor",
     featured: false,
     screenshotUrl:
       "https://i.imgur.com/JAdgj9e.png",
