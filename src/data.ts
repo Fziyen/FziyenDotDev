@@ -7,7 +7,7 @@ export const heroData = {
   tagline:
     "I'm a full-stack web developer passionate about creating modern, accessible, and performant digital products. Let's build something amazing together.",
   resumeUrl:
-    "https://drive.google.com/file/d/1F8646dF8Kzqd6Jv4GgntJQKTTyk0enKo/view?usp=sharing",
+    "https://drive.google.com/file/d/1mm-t4-_BY1j6RtvjAZuPOwUYfszgDb1l/view?usp=sharing",
   phrases: [
     "Full-Stack Web Developer",
     "Software Engineer",
