@@ -94,14 +94,13 @@ export const projectsData: Project[] = [
     description:
       "Modern Website visualizing various sorting algorithms with animations and interactive controls.",
     tech: ["React", "TypeScript", "Framer Motion"],
-    liveUrl: "#",
+    liveUrl: "https://AlgoVision-Sort.netlify.app",
     githubUrl: "https://github.com/Fziyen/AlgoVision",
     featured: false,
-    screenshotUrl:
-      "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800",
+    screenshotUrl: "https://i.imgur.com/xBa8rN9.png",
   },
   {
-    title: "QR Studio",
+    title: "QR Editor",
     description:
       "A web application that generates customizable QR codes for URLs, text, and other data types.",
     tech: ["React", "TypeScript", "Vite"],
@@ -116,7 +115,7 @@ export const projectsData: Project[] = [
       "A web application for tracking Finnish train services and schedules.",
     tech: ["Next.js", "TypeScript", "Vercel"],
     liveUrl: "#",
-    githubUrl: "https://github.com/yourusername/project5",
+    githubUrl: "https://github.com/fziyen",
     featured: false,
     screenshotUrl:
       "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fthb.tildacdn.net%2Ftild3864-3132-4334-b965-633866366534%2F-%2Fresize%2F504x%2Fpointgr_InterCity_tr.png&f=1&nofb=1&ipt=528dff5307231c27fc8fc9cbdce3877fe34b39c74ab93539f63cc27013ee6936",
@@ -125,9 +124,9 @@ export const projectsData: Project[] = [
     title: "AI Signature Detector ( Coming soon...)",
     description:
       "AI-powered fraudulent Signature detector, using machine learning algorithms to identify and flag suspicious signatures.",
-    tech: ["Python", "TensorFlow", "Typescript"],
+    tech: ["Python", "TensorFlow"],
     liveUrl: "#",
-    githubUrl: "https://github.com/yourusername/project6",
+    githubUrl: "https://github.com/fziyen",
     featured: false,
     screenshotUrl:
       "https://images.unsplash.com/photo-1589330694653-ded6df03f754?q=80&w=3032&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
