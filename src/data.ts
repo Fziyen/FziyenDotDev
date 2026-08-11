@@ -87,8 +87,7 @@ export const projectsData: Project[] = [
     liveUrl: "#",
     githubUrl: "https://github.com/Fziyen/fziyenDotDev",
     featured: true,
-    screenshotUrl:
-      "https://i.imgur.com/c5TMh8h.jpeg",
+    screenshotUrl: "https://i.imgur.com/c5TMh8h.jpeg",
   },
   {
     title: "AlgoVision",
@@ -109,8 +108,7 @@ export const projectsData: Project[] = [
     liveUrl: "https://qr-codemaker.netlify.app",
     githubUrl: "https://github.com/Fziyen/QR-Editor",
     featured: false,
-    screenshotUrl:
-      "https://i.imgur.com/JAdgj9e.png",
+    screenshotUrl: "https://i.imgur.com/JAdgj9e.png",
   },
   {
     title: "FinnTrain Tracker",
@@ -265,6 +263,6 @@ export const contactData = {
   socialLinks: {
     github: "https://github.com/Fziyen",
     linkedin: "https://linkedin.com/in/Fziyen",
-    email: "mailto:lenafziyen@gmail.com",
+    email: "mailto:lena@fziyen.dev",
   },
 };

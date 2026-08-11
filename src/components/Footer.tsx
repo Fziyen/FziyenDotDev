@@ -1,22 +1,26 @@
-import { Github, Linkedin, Mail, ArrowRight } from 'lucide-react';
+import { Github, Linkedin, Mail, ArrowRight } from "lucide-react";
 
 export const Footer = () => {
   return (
-    <footer className="bg-neutral-lightGray dark:bg-neutral-black
+    <footer
+      className="bg-neutral-lightGray dark:bg-neutral-black
                        text-neutral-black dark:text-neutral-lightGray
-                       border-t border-neutral-gray/50 dark:border-neutral-gray">
+                       border-t border-neutral-gray/50 dark:border-neutral-gray"
+    >
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid md:grid-cols-2 gap-12 mb-8">
           <div>
-            <h3 className="font-bold text-neutral-black dark:text-neutral-white text-lg mb-4">Quick Navigation</h3>
+            <h3 className="font-bold text-neutral-black dark:text-neutral-white text-lg mb-4">
+              Quick Navigation
+            </h3>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: 'Skills', href: '#skills' },
-                { label: 'Experience', href: '#experience' },
-                { label: 'Projects', href: '#projects' },
-                { label: 'Certifications', href: '#certifications' },
-                { label: 'Contact', href: '#contact' },
-              ].map(link => (
+                { label: "Skills", href: "#skills" },
+                { label: "Experience", href: "#experience" },
+                { label: "Projects", href: "#projects" },
+                { label: "Certifications", href: "#certifications" },
+                { label: "Contact", href: "#contact" },
+              ].map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
@@ -31,7 +35,9 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-bold text-neutral-black dark:text-neutral-white text-lg mb-4">Connect With Me</h3>
+            <h3 className="font-bold text-neutral-black dark:text-neutral-white text-lg mb-4">
+              Connect With Me
+            </h3>
             <div className="flex gap-6">
               <a
                 href="https://github.com/Fziyen"
@@ -52,7 +58,7 @@ export const Footer = () => {
                 <Linkedin className="w-6 h-6" />
               </a>
               <a
-                href="mailto:LenaFziyen@gmail.com"
+                href="mailto:lena@fziyen.dev"
                 className="text-neutral-black dark:text-neutral-lightGray hover:text-primary-pink transition-colors hover:scale-110"
                 aria-label="Email"
               >
@@ -64,7 +70,8 @@ export const Footer = () => {
 
         <div className="border-t border-neutral-gray/50 dark:border-neutral-gray pt-8 text-center text-sm">
           <p>
-            © {new Date().getFullYear()} Lena Fziyen. Built with React, TypeScript & Tailwind CSS.
+            © {new Date().getFullYear()} Lena Fziyen. Built with React,
+            TypeScript & Tailwind CSS.
           </p>
         </div>
       </div>
