@@ -70,12 +70,12 @@ export interface Project {
 
 export const projectsData: Project[] = [
   {
-    title: "CentriaEventia",
+    title: "UniEventia",
     description:
       "A full-featured University event management platform platform",
     tech: ["React", "Node.js", "MongoDB"],
-    liveUrl: "#",
-    githubUrl: "https://github.com/Fziyen/UniEventia",
+    liveUrl: "https://unieventia.netlify.app",
+    githubUrl: "https://github.com/Fziyen/UniEventia-front-end",
     featured: true,
     screenshotUrl: "https://i.imgur.com/Fs9oqAD.png",
   },
