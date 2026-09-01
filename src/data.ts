@@ -262,6 +262,6 @@ export const contactData = {
   socialLinks: {
     github: "https://github.com/Fziyen",
     linkedin: "https://linkedin.com/in/Fziyen",
-    email: "mailto:lena@fziyen.dev",
+    email: "mailto:lenafziyen@gmail.com",
   },
 };

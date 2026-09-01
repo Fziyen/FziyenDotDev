@@ -58,7 +58,7 @@ export const Footer = () => {
                 <Linkedin className="w-6 h-6" />
               </a>
               <a
-                href="mailto:lena@fziyen.dev"
+                href="mailto:lenafziyen@gmail.com"
                 className="text-neutral-black dark:text-neutral-lightGray hover:text-primary-pink transition-colors hover:scale-110"
                 aria-label="Email"
               >
