@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface RotatingTypewriterProps {
   phrases: string[];
@@ -9,11 +9,11 @@ interface RotatingTypewriterProps {
 
 export const RotatingTypewriter = ({
   phrases,
-  speed = 80,
+  speed = 160,
   delayBetweenPhrases = 2000,
-  className = '',
+  className = "",
 }: RotatingTypewriterProps) => {
-  const [displayText, setDisplayText] = useState('');
+  const [displayText, setDisplayText] = useState("");
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -25,13 +25,13 @@ export const RotatingTypewriter = ({
 
     if (!isDeleting && charIndex < currentPhrase.length) {
       timeout = setTimeout(() => {
-        setDisplayText(prev => prev + currentPhrase[charIndex]);
-        setCharIndex(prev => prev + 1);
+        setDisplayText((prev) => prev + currentPhrase[charIndex]);
+        setCharIndex((prev) => prev + 1);
       }, speed);
     } else if (isDeleting && charIndex > 0) {
       timeout = setTimeout(() => {
-        setDisplayText(prev => prev.slice(0, -1));
-        setCharIndex(prev => prev - 1);
+        setDisplayText((prev) => prev.slice(0, -1));
+        setCharIndex((prev) => prev - 1);
       }, speed / 2);
     } else if (!isDeleting && charIndex === currentPhrase.length) {
       timeout = setTimeout(() => {
@@ -43,7 +43,14 @@ export const RotatingTypewriter = ({
     }
 
     return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, currentPhrase, speed, delayBetweenPhrases, phrases]);
+  }, [
+    charIndex,
+    isDeleting,
+    currentPhrase,
+    speed,
+    delayBetweenPhrases,
+    phrases,
+  ]);
 
   return (
     <span className={className}>
