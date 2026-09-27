@@ -74,7 +74,7 @@ export const projectsData: Project[] = [
     description:
       "A full-featured University event management platform platform",
     tech: ["React", "Node.js", "MongoDB"],
-    liveUrl: "https://unieventia.netlify.app",
+    liveUrl: "https://uni-eventia-front-end.vercel.app",
     githubUrl: "https://github.com/Fziyen/UniEventia-front-end",
     featured: true,
     screenshotUrl: "https://i.imgur.com/Fs9oqAD.png",
