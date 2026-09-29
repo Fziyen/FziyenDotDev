@@ -1,52 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface GlitchyTextProps {
   text: string;
   className?: string;
   glitchIntensity?: number;
+  enabled?: boolean;
 }
 
 const generateGlitch = (text: string, intensity: number) => {
-  const chars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-  return text
-    .split('')
-    .map((char) => {
-      if (Math.random() < intensity) {
-        return chars[Math.floor(Math.random() * chars.length)];
-      }
-      return char;
-    })
-    .join('');
+  const chars = "!@#$%_+-=[]{}<>?";
+  return [...text].map(char => char !== " " && Math.random() < intensity
+    ? chars[Math.floor(Math.random() * chars.length)] : char).join("");
 };
 
-export const GlitchyText = ({ text, className = '', glitchIntensity = 0.1 }: GlitchyTextProps) => {
+export const GlitchyText = ({
+  text, className = "", glitchIntensity = 0.08, enabled = true,
+}: GlitchyTextProps) => {
   const [glitchedText, setGlitchedText] = useState(text);
+  const [reducedMotion, setReducedMotion] = useState(
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const animate = enabled && !reducedMotion;
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() < 0.3) {
-        setGlitchedText(generateGlitch(text, glitchIntensity));
-      } else {
-        setGlitchedText(text);
-      }
-    }, 100);
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(media.matches);
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [text, glitchIntensity]);
+  useEffect(() => {
+    setGlitchedText(text);
+    if (!animate) return;
+    let timeout: ReturnType<typeof setTimeout>;
+    let cancelled = false;
+    const burst = () => {
+      if (cancelled) return;
+      setGlitchedText(generateGlitch(text, glitchIntensity));
+      timeout = setTimeout(() => {
+        setGlitchedText(text);
+        timeout = setTimeout(burst, 3400 + Math.random() * 1600);
+      }, 130);
+    };
+    timeout = setTimeout(burst, 1600);
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [text, glitchIntensity, animate]);
 
   return (
-    <span
-      className={`relative ${className}`}
-      style={{
-        textShadow: `
-          -2px 0 #FF10F0,
-          2px 0 #9D4EDD,
-          0 -2px #FF10F0,
-          0 2px #9D4EDD
-        `,
-      }}
-    >
-      {glitchedText}
+    <span className={`glitch-text ${animate ? "glitch-running" : ""} ${className}`}>
+      <span className="sr-only">{text}</span>
+      <span className="glitch-visual" data-text={text} aria-hidden="true">
+        {animate ? glitchedText : text}
+      </span>
     </span>
   );
 };

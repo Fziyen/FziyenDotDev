@@ -5,6 +5,7 @@ interface RotatingTypewriterProps {
   speed?: number;
   delayBetweenPhrases?: number;
   className?: string;
+  enabled?: boolean;
 }
 
 export const RotatingTypewriter = ({
@@ -12,6 +13,7 @@ export const RotatingTypewriter = ({
   speed = 160,
   delayBetweenPhrases = 2000,
   className = "",
+  enabled = true,
 }: RotatingTypewriterProps) => {
   const [displayText, setDisplayText] = useState("");
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -21,7 +23,8 @@ export const RotatingTypewriter = ({
   const currentPhrase = phrases[phraseIndex];
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    if (!enabled) return;
+    let timeout: ReturnType<typeof setTimeout>;
 
     if (!isDeleting && charIndex < currentPhrase.length) {
       timeout = setTimeout(() => {
@@ -44,6 +47,7 @@ export const RotatingTypewriter = ({
 
     return () => clearTimeout(timeout);
   }, [
+    enabled,
     charIndex,
     isDeleting,
     currentPhrase,
@@ -54,8 +58,8 @@ export const RotatingTypewriter = ({
 
   return (
     <span className={className}>
-      {displayText}
-      <span className="animate-pulse ml-1">|</span>
+      <span className="sr-only">{phrases.join(". ")}</span>
+      <span aria-hidden="true">{enabled ? displayText : currentPhrase}<span className="type-cursor">|</span></span>
     </span>
   );
 };

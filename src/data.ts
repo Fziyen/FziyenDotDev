@@ -72,7 +72,7 @@ export const projectsData: Project[] = [
   {
     title: "UniEventia",
     description:
-      "A full-featured University event management platform platform",
+      "A full-featured university event management platform.",
     tech: ["React", "Node.js", "MongoDB"],
     liveUrl: "https://uni-eventia-front-end.vercel.app",
     githubUrl: "https://github.com/Fziyen/UniEventia-front-end",
@@ -83,7 +83,7 @@ export const projectsData: Project[] = [
     title: "Fziyen.dev",
     description:
       "My Portfolio website showcasing my projects, skills, and experience.",
-    tech: ["Next.js", "TypeScript", "Tailwind CSS", "Vite"],
+    tech: ["React", "TypeScript", "Three.js", "Vite"],
     liveUrl: "#",
     githubUrl: "https://github.com/Fziyen/fziyenDotDev",
     featured: true,
