@@ -1,4 +1,32 @@
-import { Code, Database, Palette, Zap, GitBranch, Globe } from "lucide-react";
+import {
+  Accessibility,
+  Activity,
+  Atom,
+  Blocks,
+  Cloud,
+  Code,
+  Container,
+  Database,
+  EyeOff,
+  Figma,
+  FileCode2,
+  Gauge,
+  GitBranch,
+  Globe,
+  Hexagon,
+  KeyRound,
+  MonitorSmartphone,
+  Network,
+  Search,
+  Server,
+  ShieldCheck,
+  Sparkles,
+  Triangle,
+  Users,
+  Wind,
+  Zap,
+  Palette,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // Hero Section Data
@@ -21,39 +49,69 @@ export const heroData = {
 export interface SkillCategory {
   icon: LucideIcon;
   title: string;
-  items: string[];
+  items: { name: string; icon: LucideIcon }[];
 }
 
 export const skillsData: SkillCategory[] = [
   {
     icon: Code,
     title: "Frontend Development",
-    items: ["React", "TypeScript", "Tailwind CSS", "Next.js"],
+    items: [
+      { name: "React", icon: Atom },
+      { name: "TypeScript", icon: FileCode2 },
+      { name: "Tailwind CSS", icon: Wind },
+      { name: "Next.js", icon: Triangle },
+    ],
   },
   {
     icon: Database,
     title: "Backend & Database",
-    items: ["Node.js", "PostgreSQL", "Supabase", "REST APIs"],
+    items: [
+      { name: "Node.js", icon: Hexagon },
+      { name: "PostgreSQL", icon: Database },
+      { name: "Supabase", icon: Zap },
+      { name: "REST APIs", icon: Network },
+    ],
   },
   {
     icon: Palette,
     title: "Design & UI/UX",
-    items: ["Figma", "Responsive Design", "Accessibility", "User Experience"],
+    items: [
+      { name: "Figma", icon: Figma },
+      { name: "Responsive Design", icon: MonitorSmartphone },
+      { name: "Accessibility", icon: Accessibility },
+      { name: "User Experience", icon: Users },
+    ],
   },
   {
     icon: GitBranch,
     title: "DevOps & Tools",
-    items: ["Docker & Kubernetes", "Git", "AWS", "Azure"],
+    items: [
+      { name: "Docker", icon: Container },
+      { name: "Kubernetes", icon: Blocks },
+      { name: "AWS", icon: Cloud },
+      { name: "Azure", icon: Server },
+    ],
   },
   {
     icon: Zap,
     title: "Performance",
-    items: ["Optimization", "SEO", "Web Vitals", "Lighthouse"],
+    items: [
+      { name: "Optimization", icon: Gauge },
+      { name: "SEO", icon: Search },
+      { name: "Web Vitals", icon: Activity },
+      { name: "Lighthouse", icon: Globe },
+    ],
   },
   {
     icon: Globe,
     title: "Self Hosting",
-    items: ["Local LMs", "Privacy", "Encryption", "Data Protection"],
+    items: [
+      { name: "Local LMs", icon: Sparkles },
+      { name: "Privacy", icon: EyeOff },
+      { name: "Encryption", icon: KeyRound },
+      { name: "Data Protection", icon: ShieldCheck },
+    ],
   },
 ];
 
@@ -71,8 +129,7 @@ export interface Project {
 export const projectsData: Project[] = [
   {
     title: "UniEventia",
-    description:
-      "A full-featured university event management platform.",
+    description: "A full-featured university event management platform.",
     tech: ["React", "Node.js", "MongoDB"],
     liveUrl: "https://uni-eventia-front-end.vercel.app",
     githubUrl: "https://github.com/Fziyen/UniEventia-front-end",
@@ -149,8 +206,7 @@ export const certificationsData: Certification[] = [
     date: "February 2025",
     credentialUrl:
       "https://www.credly.com/badges/2d42d87d-6b51-487d-ac1f-84a8aa8e95fd/public_url",
-    iconUrl:
-      "https://images.credly.com/images/bb3211c0-a562-44ec-a8b5-df54deb0e5e9/blob",
+    iconUrl: "/certifications/aws-developing.png",
   },
   {
     title: "AWS Cloud foundations",
@@ -158,8 +214,7 @@ export const certificationsData: Certification[] = [
     date: "October 2024",
     credentialUrl:
       "https://www.credly.com/badges/3aaf55a9-a31b-471c-95b9-5412c803892a/public_url",
-    iconUrl:
-      "https://images.credly.com/size/160x160/images/e3541a0c-dd4a-4820-8052-5001006efc85/blob",
+    iconUrl: "/certifications/aws-foundations.png",
   },
   {
     title: "Red Hat OpenShift I: Containers & Kubernetes (DO180)",
@@ -167,24 +222,21 @@ export const certificationsData: Certification[] = [
     date: "June 2024",
     credentialUrl:
       "https://rha.ole.redhat.com/rha/api/certificates/attendance/uuid/37249495-e5c4-446b-a683-9c356a0c659c",
-    iconUrl:
-      "https://media.licdn.com/dms/image/v2/C4E0BAQEto-TydTTIfQ/company-logo_100_100/company-logo_100_100/0/1630583759577/red_hat_logo?e=1787788800&v=beta&t=Gx1GQZQw3o-8MFqJb5t03MToBbs8Z5U8sB5eZF6Ijrk",
+    iconUrl: "/certifications/redhat.svg",
   },
   {
     title: "Javascript algorithms and data structures",
     issuer: "FreeCodeCamp",
     date: "March 2022",
     credentialUrl: "#",
-    iconUrl:
-      "https://media.licdn.com/dms/image/v2/C4E0BAQGLKj3JHcof0w/company-logo_100_100/company-logo_100_100/0/1630639684997/free_code_camp_logo?e=1787788800&v=beta&t=929Gk9VXDV_kI5CAVoQLkEi1895zw3sIpjRI4OiXazU",
+    iconUrl: "/certifications/freecodecamp.svg",
   },
   {
     title: "Responsive Web Design",
     issuer: "FreeCodeCamp",
     date: "January 2022",
     credentialUrl: "#",
-    iconUrl:
-      "https://media.licdn.com/dms/image/v2/C4E0BAQGLKj3JHcof0w/company-logo_100_100/company-logo_100_100/0/1630639684997/free_code_camp_logo?e=1787788800&v=beta&t=929Gk9VXDV_kI5CAVoQLkEi1895zw3sIpjRI4OiXazU",
+    iconUrl: "/certifications/freecodecamp.svg",
   },
 ];
 

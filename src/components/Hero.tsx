@@ -1,9 +1,9 @@
-import { AnimatedBackground } from './AnimatedBackground';
-import { ArrowRight, Download } from 'lucide-react';
-import { RotatingTypewriter } from './RotatingTypewriter';
-import { CursorGlow } from './CursorGlow';
-import { GlitchyText } from './GlitchyText';
-import { heroData } from '../data';
+import { AnimatedBackground } from "./AnimatedBackground";
+import { ArrowRight, Download } from "lucide-react";
+import { RotatingTypewriter } from "./RotatingTypewriter";
+import { CursorGlow } from "./CursorGlow";
+import { GlitchyText } from "./GlitchyText";
+import { heroData } from "../data";
 
 export const Hero = () => {
   return (
@@ -17,16 +17,23 @@ export const Hero = () => {
 
         <div className="relative z-10 max-w-5xl w-full">
           <div className="animate-slideIn">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-4
-                           text-neutral-black dark:text-neutral-white leading-tight">
-              <GlitchyText text={`Hey, I'm ${heroData.name}`} glitchIntensity={0.05} />
+            <h1
+              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-4
+                           text-neutral-black dark:text-neutral-white leading-tight"
+            >
+              <GlitchyText
+                text={`Hey, I'm ${heroData.name}`}
+                glitchIntensity={0.05}
+              />
             </h1>
 
-            <div className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-8 h-16
-                            bg-gradient-to-r from-primary-pink to-primary-purple bg-clip-text text-transparent">
+            <div
+              className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-8 h-16
+                            bg-gradient-to-r from-primary-pink to-primary-purple bg-clip-text text-transparent"
+            >
               <RotatingTypewriter
                 phrases={heroData.phrases}
-                speed={80}
+                speed={200}
                 delayBetweenPhrases={2500}
               />
             </div>

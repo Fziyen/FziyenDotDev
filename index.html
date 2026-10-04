@@ -1,29 +1,141 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNlYzM2ZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jb2RlLXhtbC1pY29uIGx1Y2lkZS1jb2RlLXhtbCI+PHBhdGggZD0ibTE4IDE2IDQtNC00LTQiLz48cGF0aCBkPSJtNiA4LTQgNCA0IDQiLz48cGF0aCBkPSJtMTQuNSA0LTUgMTYiLz48L3N2Zz4=" >
+    <meta name="theme-color" content="#060509" />
+    <!-- Inline so the first paint is dark, before CSS or JavaScript downloads. -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #060509;
+        color: #f5f1ff;
+      }
+      #startup-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        padding: 24px;
+        text-align: center;
+        background: radial-gradient(ellipse at center, #1c0c2e 0, #060509 65%);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        opacity: 1;
+        transition: opacity 300ms ease;
+      }
+      #startup-loader.is-ready {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .startup-brand {
+        font-size: clamp(28px, 7vw, 44px);
+        letter-spacing: -2px;
+      }
+      .startup-brand span {
+        color: #bd8aff;
+      }
+      .startup-label {
+        margin: 0;
+        color: #c2b1d4;
+        font-size: 12px;
+        letter-spacing: 2px;
+      }
+      .startup-track {
+        width: 160px;
+        height: 2px;
+        overflow: hidden;
+        background: #bd8aff26;
+      }
+      .startup-track::after {
+        content: "";
+        display: block;
+        width: 45%;
+        height: 100%;
+        background: linear-gradient(90deg, #9d4edd, #ff70eb);
+        animation: startup-progress 1.3s ease-in-out infinite alternate;
+      }
+      @keyframes startup-progress {
+        from {
+          transform: translateX(-100%);
+        }
+        to {
+          transform: translateX(225%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #startup-loader {
+          transition: none;
+        }
+        .startup-track::after {
+          animation: none;
+          width: 100%;
+        }
+      }
+    </style>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNlYzM2ZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jb2RlLXhtbC1pY29uIGx1Y2lkZS1jb2RlLXhtbCI+PHBhdGggZD0ibTE4IDE2IDQtNC00LTQiLz48cGF0aCBkPSJtNiA4LTQgNCA0IDQiLz48cGF0aCBkPSJtMTQuNSA0LTUgMTYiLz48L3N2Zz4="
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lena Fziyen - Full Stack Web Developer</title>
-    
+
     <!-- Primary Meta Tags -->
-    <meta name="title" content="Lena Fziyen - Full Stack Developer">
-    <meta name="description" content="Full-stack developer passionate about creating innovative web solutions and solving complex problems through technology. Expertise in React, TypeScript, Node.js, and cloud technologies.">
-    
+    <meta name="title" content="Lena Fziyen - Full Stack Developer" />
+    <meta
+      name="description"
+      content="Full-stack developer passionate about creating innovative web solutions and solving complex problems through technology. Expertise in React, TypeScript, Node.js, and cloud technologies."
+    />
+
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://fziyen.dev/">
-    <meta property="og:title" content="Lena Fziyen - Full Stack Developer">
-    <meta property="og:description" content="Full-stack developer passionate about creating innovative web solutions and solving complex problems through technology. Expertise in React, TypeScript, Node.js, and cloud technologies.">
-    
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fziyen.dev/" />
+    <meta property="og:title" content="Lena Fziyen - Full Stack Developer" />
+    <meta
+      property="og:description"
+      content="Full-stack developer passionate about creating innovative web solutions and solving complex problems through technology. Expertise in React, TypeScript, Node.js, and cloud technologies."
+    />
+
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://fziyen.dev/">
-    <meta property="twitter:title" content="Lena Fziyen - Full Stack Developer">
-    <meta property="twitter:description" content="Full-stack developer passionate about creating innovative web solutions and solving complex problems through technology. Expertise in React, TypeScript, Node.js, and cloud technologies.">
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://fziyen.dev/" />
+    <meta
+      property="twitter:title"
+      content="Lena Fziyen - Full Stack Developer"
+    />
+    <meta
+      property="twitter:description"
+      content="Full-stack developer passionate about creating innovative web solutions and solving complex problems through technology. Expertise in React, TypeScript, Node.js, and cloud technologies."
+    />
   </head>
   <body>
-    <div id="root"></div>
+    <div
+      id="startup-loader"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading portfolio"
+    >
+      <div class="startup-brand" aria-hidden="true">
+        fziyen<span>.dev</span>
+      </div>
+      <div class="startup-track" aria-hidden="true"></div>
+      <p class="startup-label" aria-hidden="true">LOADING PORTFOLIO</p>
+    </div>
+    <noscript>
+      <style>
+        #startup-loader {
+          display: none;
+        }
+      </style>
+      <p style="padding: 24px; font-family: system-ui">
+        Please enable JavaScript to view this portfolio.
+      </p>
+    </noscript>
+    <div id="root" inert></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

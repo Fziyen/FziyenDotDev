@@ -47,8 +47,8 @@ export const Skills = () => {
                         className="text-sm text-neutral-black dark:text-neutral-lightGray
                                  flex items-center gap-2 group-hover/card:text-primary-pink transition duration-300"
                       >
-                        <span className="w-1.5 h-1.5 bg-primary-purple rounded-full group-hover/card:bg-primary-pink transition duration-300"></span>
-                        {item}
+                        <item.icon size={17} aria-hidden="true" className="shrink-0 text-primary-purple" />
+                        {item.name}
                       </li>
                     ))}
                   </ul>

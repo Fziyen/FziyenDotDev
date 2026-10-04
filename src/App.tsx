@@ -4,13 +4,9 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  Check,
-  Code2,
   Download,
-  Github,
   Pause,
   Play,
-  Radio,
   X,
 } from "lucide-react";
 import {
@@ -18,14 +14,16 @@ import {
   contactData,
   experienceEducationData,
   heroData,
-  projectsData,
   skillsData,
 } from "./data";
+import { ProjectShowcase } from "./components/ProjectShowcase";
 import { Contact } from "./components/Contact";
 import { useJourneyMotion } from "./hooks/useJourneyMotion";
 import { Chapter } from "./components/Chapter";
 import { GlitchyText } from "./components/GlitchyText";
 import { RotatingTypewriter } from "./components/RotatingTypewriter";
+
+import { dismissStartupLoader } from "./startupLoader";
 
 const Terrain = lazy(() => import("./components/terrain/Terrain"));
 const chapters = [
@@ -46,7 +44,6 @@ const chapterFromHash = () => {
 
 function App() {
   const [chapter, setChapter] = useState(chapterFromHash);
-  const [project, setProject] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [paused, setPaused] = useState(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -55,7 +52,12 @@ function App() {
   const stage = useRef<HTMLElement>(null);
   const journey = useJourneyMotion(travel, stage, paused, setChapter);
   const progressBar = useRef<HTMLDivElement>(null);
-  const selectedProject = projectsData[project];
+
+  useEffect(() => {
+    // Reveal usable content even if the decorative terrain is slow to load.
+    const timeout = window.setTimeout(dismissStartupLoader, 4000);
+    return () => window.clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -123,7 +125,7 @@ function App() {
         Skip to content
       </a>
       <Suspense fallback={<div className="terrain terrain-fallback" />}>
-        <Terrain travel={travel} journey={journey} paused={paused} />
+        <Terrain journey={journey} paused={paused} />
       </Suspense>
       <div className="scene-shade" aria-hidden="true" />
       <div className="scanlines" aria-hidden="true" />
@@ -238,18 +240,20 @@ function App() {
             </div>
           </div>
           <div className="skills-grid">
-            {skillsData.map((category, index) => (
+            {skillsData.map((category) => (
               <article className="skill-card glass-panel" key={category.title}>
                 <div className="skill-top">
                   <category.icon size={24} strokeWidth={1.3} />
-                  <span>0{index + 1}</span>
                 </div>
                 <h3>{category.title}</h3>
-                <div className="skill-items">
+                <ul className="skill-items" role="list">
                   {category.items.map((item) => (
-                    <span key={item}>{item}</span>
+                    <li key={item.name}>
+                      <item.icon size={17} strokeWidth={1.6} aria-hidden="true" />
+                      <span>{item.name}</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </article>
             ))}
           </div>
@@ -269,84 +273,7 @@ function App() {
               </h2>
             </div>
           </div>
-          <div className="project-layout">
-            <div className="project-list" aria-label="Choose a project">
-              {projectsData.map((item, index) => (
-                <button
-                  className={project === index ? "selected" : ""}
-                  onClick={() => setProject(index)}
-                  aria-pressed={project === index}
-                  key={item.title}
-                >
-                  <span>0{index + 1}</span>
-                  <span>{item.title.replace(" ( Coming soon...)", "")}</span>
-                  <ArrowUpRight size={18} />
-                </button>
-              ))}
-            </div>
-            <article className="project-card glass-panel" key={project}>
-              <div className="project-image">
-                <img
-                  src={selectedProject.screenshotUrl}
-                  alt={`${selectedProject.title} project preview`}
-                  loading="lazy"
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                  }}
-                />
-                <div className="project-image-fallback">
-                  <Code2 size={46} />
-                  <span>
-                    {selectedProject.title.replace(" ( Coming soon...)", "")}
-                  </span>
-                </div>
-                <span className="project-tag">
-                  {selectedProject.title.includes("Coming soon")
-                    ? "IN DEVELOPMENT"
-                    : selectedProject.featured
-                      ? "FEATURED PROJECT"
-                      : "PROJECT"}
-                </span>
-              </div>
-              <div className="project-detail">
-                <div className="project-title-row">
-                  <h3>
-                    {selectedProject.title.replace(" ( Coming soon...)", "")}
-                  </h3>
-                  <span>0{project + 1} / 06</span>
-                </div>
-                <p>{selectedProject.description}</p>
-                <div className="tech-tags">
-                  {selectedProject.tech.map((tech) => (
-                    <span key={tech}>{tech}</span>
-                  ))}
-                </div>
-                <div className="project-links">
-                  {selectedProject.liveUrl !== "#" && (
-                    <a
-                      href={selectedProject.liveUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Visit project <ArrowUpRight size={16} />
-                    </a>
-                  )}
-                  {selectedProject.title === "Fziyen.dev" && (
-                    <span className="you-are-here">
-                      <Radio size={14} /> You’re here
-                    </span>
-                  )}
-                  <a
-                    href={selectedProject.githubUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <Github size={15} /> Source code <ArrowUpRight size={14} />
-                  </a>
-                </div>
-              </div>
-            </article>
-          </div>
+          <ProjectShowcase paused={paused} />
         </Chapter>
 
         <Chapter
@@ -440,7 +367,14 @@ function App() {
               <article className="credential" key={item.title}>
                 <span className="credential-number">0{index + 1}</span>
                 <div className="credential-icon">
-                  <Check size={22} />
+                  <img
+                    src={item.iconUrl}
+                    alt={`${item.issuer} certification logo`}
+                    width={48}
+                    height={48}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
                 <div className="credential-info">
                   <p>{item.issuer}</p>
