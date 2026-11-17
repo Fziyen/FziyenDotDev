@@ -305,7 +305,7 @@ export const experienceEducationData: ExperienceEducationSection = {
         "Contributed to the development of internal dashboards and reporting tools for operational monitoring",
         "Participated in debugging, code reviews, testing and collaborative development using Git",
       ],
-      logoUrl: "",
+      logoUrl: "https://media.licdn.com/dms/image/v2/D4E0BAQFr2vQpeB-2Hg/company-logo_200_200/B4EZ6C.v0bJAAE-/0/1780313947708/intelcia_logo?e=1796256000&v=beta&t=1p4WE77HSd_KUd5joeVcsW_vLm6joKZERd5Vvz8cuW4",
       logoLink: "",
     },
     {
@@ -316,7 +316,7 @@ export const experienceEducationData: ExperienceEducationSection = {
         "Contributed to web development and digital transformation projects, focusing on e-commerce applications, backend services for mobile apps, data processing and third-party API integrations",
         "Collaborated remotely with developers to implement application features, troubleshoot technical issues and support ongoing software development activities.",
       ],
-      logoUrl: "",
+      logoUrl: "https://media.licdn.com/dms/image/v2/C510BAQHVkdQ2a4A-Wg/company-logo_100_100/company-logo_100_100/0/1630583157866/emstell_technology_consulting_logo?e=1796256000&v=beta&t=o9ljp9P7_WWRBxk7KF3Pap2iJICX5-quWl7dLE5B_EA",
       logoLink: "",
     },
   ],
