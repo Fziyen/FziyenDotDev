@@ -135,7 +135,6 @@ em {
   mix-blend-mode: screen;
 }
 .scroll-distance {
-  height: 725vh;
   pointer-events: none;
 }
 .site-header {
@@ -241,7 +240,6 @@ em {
   top: calc(100px + 5.5vh);
   bottom: calc(92px + 4.5vh);
   outline: 0;
-  perspective: 1200px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
@@ -257,19 +255,36 @@ em {
   scrollbar-width: thin;
   scrollbar-color: #68408b transparent;
   padding: 3px 8px 12px 0;
-  opacity: var(--chapter-opacity, 0);
+  /* Opacity, visibility and the world-space transform are set every frame
+     by useJourneyMotion, which projects each panel with the terrain camera. */
   visibility: hidden;
   pointer-events: none;
-  transform: translate3d(var(--chapter-x, 0px), 0, var(--chapter-depth, 0px))
-    rotateY(var(--chapter-yaw, 0deg));
-  transform-origin: 50% 55%;
+  transform-origin: 50% 50%;
   backface-visibility: hidden;
 }
 .chapter[data-active="true"] {
-  opacity: var(--chapter-opacity, 1);
-  visibility: visible;
   pointer-events: auto;
   z-index: 1;
+}
+/* Chapters the camera has not reached yet read as holograms in the terrain:
+   scanline holes, plus slices that tear sideways while they glitch. Blur,
+   colour split and flicker are driven per frame by useJourneyMotion. */
+.chapter[data-ghost] {
+  -webkit-mask-image: repeating-linear-gradient(180deg, #000 0 2px, rgba(0, 0, 0, 0.25) 2px 4px);
+  mask-image: repeating-linear-gradient(180deg, #000 0 2px, rgba(0, 0, 0, 0.25) 2px 4px);
+}
+.chapter[data-ghost="glitch"] {
+  animation: chapter-ghost-tear 0.18s steps(1, end) infinite;
+}
+@keyframes chapter-ghost-tear {
+  0% { clip-path: inset(0 0 62% 0); }
+  20% { clip-path: inset(38% 0 21% 0); }
+  40% { clip-path: inset(12% 0 55% 0); }
+  60% { clip-path: inset(70% 0 4% 0); }
+  80% { clip-path: inset(0 0 0 0); }
+}
+.motion-paused .chapter[data-ghost="glitch"] {
+  animation: none;
 }
 .hero-chapter {
   overflow-y: auto;

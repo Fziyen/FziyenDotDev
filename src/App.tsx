@@ -26,6 +26,8 @@ import { RotatingTypewriter } from "./components/RotatingTypewriter";
 import { dismissStartupLoader } from "./startupLoader";
 
 const Terrain = lazy(() => import("./components/terrain/Terrain"));
+// Scroll distance per chapter, as a fraction of the viewport height.
+const SCROLL_STEP = 0.6;
 const chapters = [
   { id: "home", label: "Intro" },
   { id: "skills", label: "Toolkit" },
@@ -67,11 +69,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const getStep = () => window.innerHeight * 1.25;
+    const getStep = () => window.innerHeight * SCROLL_STEP;
     const onScroll = () => {
       const position = Math.min(
         chapters.length - 1,
-        Math.max(0, window.scrollY / getStep()),
+        Math.max(0, window.scrollY / getStep() || 0),
       );
       travel.current = position;
       const index = Math.round(position);
@@ -106,7 +108,7 @@ function App() {
   const navigate = (index: number) => {
     setMenuOpen(false);
     window.scrollTo({
-      top: index * window.innerHeight * 1.25,
+      top: index * window.innerHeight * SCROLL_STEP,
       behavior: "instant",
     });
     travel.current = index;
@@ -478,7 +480,11 @@ function App() {
       <span className="sr-only" role="status" aria-live="polite">
         Chapter {chapter + 1} of 6: {chapters[chapter].label}
       </span>
-      <div className="scroll-distance" aria-hidden="true" />
+      <div
+        className="scroll-distance"
+        aria-hidden="true"
+        style={{ height: `${100 + (chapters.length - 1) * SCROLL_STEP * 100}vh` }}
+      />
     </div>
   );
 }

@@ -87,7 +87,6 @@ export default function Terrain({ journey, paused }: TerrainProps) {
     }
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(58, 1, 0.1, 220);
-    camera.position.set(0, 5.6, 0);
     const compact = window.innerWidth < 768;
     const columns = compact ? 224 : 400;
     const rows = compact ? 224 : 400;
@@ -103,7 +102,7 @@ export default function Terrain({ journey, paused }: TerrainProps) {
     geometry.setAttribute("position", new THREE.BufferAttribute(points, 3));
     const material = new THREE.ShaderMaterial({
       uniforms: {
-        uWorldPosition: { value: new THREE.Vector2(journey.current.worldX, journey.current.worldZ) },
+        uWorldPosition: { value: new THREE.Vector2(journey.current.x, journey.current.z) },
         uTime: { value: 0 },
         uPixelRatio: { value: 1 },
         uMotion: { value: 1 },
@@ -119,13 +118,6 @@ export default function Terrain({ journey, paused }: TerrainProps) {
     scene.add(terrain);
     container.appendChild(renderer.domElement);
     renderer.domElement.setAttribute("aria-hidden", "true");
-    const pointer = { x: 0, y: 0 };
-    const onPointer = (event: PointerEvent) => {
-      if (event.pointerType === "mouse") {
-        pointer.x = event.clientX / window.innerWidth - 0.5;
-        pointer.y = event.clientY / window.innerHeight - 0.5;
-      }
-    };
     let needsRender = true;
     let wasPaused = false;
     const resize = () => {
@@ -150,45 +142,32 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       contextRestored,
     );
     window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", onPointer, { passive: true });
     resize();
     let frame = 0;
     let firstFrame = true;
     let last = performance.now();
-    const drift = new THREE.Vector2();
     let time = 0;
-    let pointerOffset = 0;
-    let heading = journey.current.heading;
-    let bank = 0;
+    let renderedVersion = -1;
+    camera.rotation.order = "YXZ";
     const render = (now: number) => {
       frame = requestAnimationFrame(render);
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       if (document.hidden) return;
       const moving = !pauseRef.current;
-      if (!moving && wasPaused && !needsRender) return;
+      const pose = journey.current;
+      if (!moving && wasPaused && !needsRender && pose.version === renderedVersion) return;
       wasPaused = !moving;
       needsRender = false;
-      if (moving) {
-        time += dt;
-        pointerOffset += (pointer.x * 1.7 - pointerOffset) * dt * 2;
-        heading = journey.current.heading;
-        bank = journey.current.bank;
-        const worldPosition = material.uniforms.uWorldPosition.value as THREE.Vector2;
-        drift.x += Math.sin(heading) * dt * 1.65;
-        drift.y -= Math.cos(heading) * dt * 1.65;
-        worldPosition.set(journey.current.worldX + drift.x, journey.current.worldZ + drift.y);
-        camera.position.x = Math.cos(heading) * pointerOffset;
-        camera.position.z = Math.sin(heading) * pointerOffset;
-      }
+      renderedVersion = pose.version;
+      if (moving) time += dt;
+      // The shared journey camera also positions the HTML chapter panels, so
+      // the terrain and the panels always agree on where the camera is.
+      (material.uniforms.uWorldPosition.value as THREE.Vector2).set(pose.x, pose.z);
+      camera.position.set(0, pose.y, 0);
+      camera.rotation.set(pose.pitch, -pose.heading, -pose.bank);
       material.uniforms.uTime.value = time;
       material.uniforms.uMotion.value = moving ? 1 : 0;
-      camera.lookAt(
-        camera.position.x + Math.sin(heading) * 81,
-        5.0 + (moving ? pointer.y * 0.35 : 0),
-        camera.position.z - Math.cos(heading) * 81,
-      );
-      camera.rotateZ(-bank);
       renderer.render(scene, camera);
       if (firstFrame) {
         firstFrame = false;
@@ -199,7 +178,6 @@ export default function Terrain({ journey, paused }: TerrainProps) {
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", onPointer);
       renderer.domElement.removeEventListener("webglcontextlost", contextLost);
       renderer.domElement.removeEventListener(
         "webglcontextrestored",
