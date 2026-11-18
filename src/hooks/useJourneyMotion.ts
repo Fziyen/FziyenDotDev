@@ -1,4 +1,5 @@
 import { useEffect, useRef, type MutableRefObject, type RefObject } from "react";
+import { shouldRenderFrame } from "../frameGate";
 
 /**
  * One camera drives both the WebGL terrain and the HTML chapter panels.
@@ -153,6 +154,20 @@ export function useJourneyMotion(
     const presence = elements.map((element) => Number(Math.abs(Number(element.dataset.chapterIndex) - startIndex) <= 1));
     const glitchUntil = elements.map(() => 0);
     let clock = performance.now();
+    // Last value written per panel and property. Unchanged values are not
+    // written again, so steady panels cost no style invalidation per frame.
+    const written = elements.map(() => new Map<string, string>());
+    const write = (slot: number, property: string, value: string) => {
+      if (written[slot].get(property) === value) return;
+      written[slot].set(property, value);
+      const element = elements[slot];
+      if (property === "ghost") {
+        if (value) element.dataset.ghost = value;
+        else delete element.dataset.ghost;
+      } else {
+        element.style.setProperty(property, value);
+      }
+    };
 
     const paint = (animating: boolean) => {
       const camera = motion.current;
@@ -175,7 +190,6 @@ export function useJourneyMotion(
           // Dissolve as the camera closes in past its reading distance, so
           // leaving a chapter flies through it rather than into giant text.
           smoothstep(6, PANEL_DISTANCE - 0.6, depth) *(1 - smoothstep(55, 140, depth)) * smoothstep(0.15, 0.45, facing);
-        const { element } = panel;
         const sharpness = focus[slot];
         const ghost = 1 - sharpness;
         // Unfocused chapters flicker in short bursts with a sideways tear.
@@ -186,8 +200,8 @@ export function useJourneyMotion(
           opacity * presence[slot] * (GHOST_OPACITY + (1 - GHOST_OPACITY) * sharpness ** 2) *
           (glitching ? 0.35 + Math.random() * 1.1 : 1);
         if (visibleOpacity < 0.01) {
-          element.style.visibility = "hidden";
-          element.style.willChange = "";
+          write(slot, "visibility", "hidden");
+          write(slot, "will-change", "");
           continue;
         }
         const tear = glitching ? (Math.random() - 0.5) * 26 * ghost : 0;
@@ -195,23 +209,22 @@ export function useJourneyMotion(
           multiply(translate(tear - panel.offsetX, -panel.offsetY, focal), FLIP_Y),
           multiply(eye, FLIP_Y),
         );
-        element.style.visibility = "visible";
-        element.style.opacity = Math.min(1, visibleOpacity).toFixed(3);
-        element.style.transform = `matrix3d(${matrix.map((value) => +value.toFixed(6)).join(",")})`;
-        element.style.willChange = animating ? "transform, opacity" : "";
+        write(slot, "visibility", "visible");
+        write(slot, "opacity", Math.min(1, visibleOpacity).toFixed(3));
+        write(slot, "transform", `matrix3d(${matrix.map((value) => +value.toFixed(6)).join(",")})`);
+        write(slot, "will-change", animating ? "transform, opacity" : "");
         // Keep the focused chapter filter-free: crisp text and working
         // backdrop blur on its cards.
         if (ghost < 0.01) {
-          element.style.filter = "";
-          delete element.dataset.ghost;
+          write(slot, "filter", "");
+          write(slot, "ghost", "");
         } else {
           const split = (ghost * (glitching ? 7 : 2.5)).toFixed(1);
-          element.style.filter =
+          write(slot, "filter",
             `blur(${(ghost * GHOST_BLUR).toFixed(2)}px) ` +
             `drop-shadow(${split}px 0 0 rgba(255, 60, 220, ${(0.55 * ghost).toFixed(2)})) ` +
-            `drop-shadow(-${split}px 0 0 rgba(80, 220, 255, ${(0.45 * ghost).toFixed(2)}))`;
-          if (ghost > 0.4) element.dataset.ghost = glitching ? "glitch" : "idle";
-          else delete element.dataset.ghost;
+            `drop-shadow(-${split}px 0 0 rgba(80, 220, 255, ${(0.45 * ghost).toFixed(2)}))`);
+          write(slot, "ghost", ghost > 0.4 ? (glitching ? "glitch" : "idle") : "");
         }
       }
     };
@@ -251,6 +264,7 @@ export function useJourneyMotion(
 
     const animate = (now: number) => {
       frame = requestAnimationFrame(animate);
+      if (!shouldRenderFrame(now)) return;
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       if (document.hidden) return;

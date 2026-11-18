@@ -27,7 +27,7 @@ import { dismissStartupLoader } from "./startupLoader";
 
 const Terrain = lazy(() => import("./components/terrain/Terrain"));
 // Scroll distance per chapter, as a fraction of the viewport height.
-const SCROLL_STEP = 0.6;
+const SCROLL_STEP = 0.3;
 const chapters = [
   { id: "home", label: "Intro" },
   { id: "skills", label: "Toolkit" },
@@ -113,6 +113,26 @@ function App() {
     });
     travel.current = index;
   };
+
+  // Left/right arrow keys step between chapters, except while typing or
+  // when a focused control (e.g. a carousel) has already handled the key.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) return;
+      const current = Math.round(travel.current);
+      const next = Math.max(0, Math.min(chapters.length - 1, current + (event.key === "ArrowRight" ? 1 : -1)));
+      if (next === current) return;
+      event.preventDefault();
+      setMenuOpen(false);
+      window.scrollTo({ top: next * window.innerHeight * SCROLL_STEP, behavior: "instant" });
+      travel.current = next;
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <div className={`portfolio ${paused ? "motion-paused" : ""}`}>

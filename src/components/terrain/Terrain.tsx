@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import * as THREE from "three";
 import { dismissStartupLoader } from "../../startupLoader";
+import { shouldRenderFrame } from "../../frameGate";
 import type { JourneyMotion } from "../../hooks/useJourneyMotion";
 
 interface TerrainProps {
@@ -13,6 +14,7 @@ const vertexShader = `
   uniform float uTime;
   uniform float uPixelRatio;
   uniform float uMotion;
+  uniform vec2 uForward;
   varying float vDepth;
   varying float vHeight;
   varying float vSpark;
@@ -28,16 +30,35 @@ const vertexShader = `
     // Recycle a square of world-anchored points in every direction. A large
     // yaw turn never exposes the edge of the old forward-only terrain strip.
     p.xz = mod(position.xz - uWorldPosition + 140.0, 280.0) - 140.0;
+    // Skip points that can never be seen before doing any noise work: those
+    // past the fog (fully transparent) and those behind the camera. Moving
+    // them outside the clip volume also skips their fragments entirely.
+    float flatDepth = length(p.xz);
+    if (flatDepth > 135.0 || dot(p.xz, uForward) < -2.0) {
+      gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+      gl_PointSize = 0.0;
+      vDepth = 1000.0;
+      vHeight = 0.0;
+      vSpark = 0.0;
+      return;
+    }
     vec2 world = p.xz + uWorldPosition;
     vec2 samplePos = world * vec2(0.052, 0.041);
     float n = noise(samplePos) * 0.62 + noise(samplePos * 2.1) * 0.26 + noise(samplePos * 4.3) * 0.12;
     float valley = smoothstep(1.5, 26.0, abs(world.x));
     // Keep a small clearing around the flight path when looking across peaks.
-    valley *= smoothstep(8.0, 36.0, length(p.xz));
+    valley *= smoothstep(8.0, 36.0, flatDepth);
     p.y = pow(n, 1.8) * 28.0 * valley - 5.0;
     p.y += sin(world.x * 0.18 + world.y * 0.04) * 0.45;
     float glitch = step(0.985, sin(uTime * 0.7)) * step(0.83, noise(vec2(floor(p.z * 0.6), floor(uTime * 9.0))));
     p.x += glitch * sin(uTime * 70.0) * 0.75 * uMotion;
+    // Idle hover: a slow swell rolls across the terrain while every dot bobs
+    // and drifts on its own phase, so the field stays alive between flights.
+    // uTime only advances with motion on, so this freezes when paused.
+    float phase = hash(position.xz + 17.0) * 6.2831;
+    p.y += sin(world.x * 0.11 + world.y * 0.08 + uTime * 0.55) * 0.3;
+    p.y += sin(uTime * 0.9 + phase) * 0.16;
+    p.xz += vec2(sin(uTime * 0.47 + phase * 1.7), cos(uTime * 0.39 + phase)) * 0.14;
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     vDepth = length(p.xz);
     vHeight = p.y;
@@ -106,6 +127,7 @@ export default function Terrain({ journey, paused }: TerrainProps) {
         uTime: { value: 0 },
         uPixelRatio: { value: 1 },
         uMotion: { value: 1 },
+        uForward: { value: new THREE.Vector2(0, -1) },
       },
       vertexShader,
       fragmentShader,
@@ -151,6 +173,7 @@ export default function Terrain({ journey, paused }: TerrainProps) {
     camera.rotation.order = "YXZ";
     const render = (now: number) => {
       frame = requestAnimationFrame(render);
+      if (!shouldRenderFrame(now)) return;
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       if (document.hidden) return;
@@ -166,6 +189,7 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       (material.uniforms.uWorldPosition.value as THREE.Vector2).set(pose.x, pose.z);
       camera.position.set(0, pose.y, 0);
       camera.rotation.set(pose.pitch, -pose.heading, -pose.bank);
+      (material.uniforms.uForward.value as THREE.Vector2).set(Math.sin(pose.heading), -Math.cos(pose.heading));
       material.uniforms.uTime.value = time;
       material.uniforms.uMotion.value = moving ? 1 : 0;
       renderer.render(scene, camera);
@@ -186,6 +210,9 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       geometry.dispose();
       material.dispose();
       renderer.dispose();
+      // Release the GL context now instead of waiting for garbage collection
+      // (React StrictMode and remounts would otherwise stack live contexts).
+      renderer.forceContextLoss();
       renderer.domElement.remove();
     };
   }, [journey]);
