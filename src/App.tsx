@@ -10,16 +10,16 @@ import {
   X,
 } from "lucide-react";
 import {
-  certificationsData,
   contactData,
-  experienceEducationData,
   heroData,
-  skillsData,
 } from "./data";
 import { ProjectShowcase } from "./components/ProjectShowcase";
 import { Contact } from "./components/Contact";
 import { useJourneyMotion } from "./hooks/useJourneyMotion";
 import { Chapter } from "./components/Chapter";
+import { Journey } from "./components/Journey";
+import { Credentials } from "./components/Credentials";
+import { Skills } from "./components/Skills";
 import { GlitchyText } from "./components/GlitchyText";
 import { RotatingTypewriter } from "./components/RotatingTypewriter";
 
@@ -261,24 +261,7 @@ function App() {
               </h2>
             </div>
           </div>
-          <div className="skills-grid">
-            {skillsData.map((category) => (
-              <article className="skill-card glass-panel" key={category.title}>
-                <div className="skill-top">
-                  <category.icon size={24} strokeWidth={1.3} />
-                </div>
-                <h3>{category.title}</h3>
-                <ul className="skill-items" role="list">
-                  {category.items.map((item) => (
-                    <li key={item.name}>
-                      <item.icon size={17} strokeWidth={1.6} aria-hidden="true" />
-                      <span>{item.name}</span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
+          <Skills paused={paused} />
         </Chapter>
 
         <Chapter
@@ -301,6 +284,7 @@ function App() {
         <Chapter
           index={3}
           active={chapter === 3}
+          className="journey-chapter"
           aria-labelledby="journey-title"
         >
           <div className="section-heading">
@@ -319,61 +303,13 @@ function App() {
               Full résumé <Download size={16} />
             </a>
           </div>
-          <div className="journey-grid">
-            {(["work", "education"] as const).map((group) => (
-              <div className="journey-column" key={group}>
-                <h3 className="eyebrow">
-                  {group === "work" ? "01 — EXPERIENCE" : "02 — EDUCATION"}
-                </h3>
-                {experienceEducationData[group].map((item) => (
-                  <article className="timeline-item" key={item.title}>
-                    <span className="timeline-dot" />
-                    <p className="timeline-period">
-                      {item.period.replace("->", "—")}
-                    </p>
-                    <div className="timeline-heading">
-                      {item.logoUrl && (
-                        item.logoLink ? (
-                          <a
-                            className="timeline-logo"
-                            href={item.logoLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`${item.company} website`}
-                          >
-                            <img src={item.logoUrl} alt={`${item.company} logo`} loading="lazy" />
-                          </a>
-                        ) : (
-                          <span className="timeline-logo">
-                            <img src={item.logoUrl} alt={`${item.company} logo`} loading="lazy" />
-                          </span>
-                        )
-                      )}
-                      <div className="timeline-heading-text">
-                        <h3>{item.title}</h3>
-                        <p className="timeline-company">{item.company}</p>
-                      </div>
-                    </div>
-                    {Array.isArray(item.description) ? (
-                      <ul>
-                        {item.description.map((description) => (
-                          <li key={description}>{description}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="timeline-description">{item.description}</p>
-                    )}
-                    {item.gpa && <span className="gpa">{item.gpa}</span>}
-                  </article>
-                ))}
-              </div>
-            ))}
-          </div>
+          <Journey paused={paused} />
         </Chapter>
 
         <Chapter
           index={4}
           active={chapter === 4}
+          className="creds-chapter"
           aria-labelledby="credentials-title"
         >
           <div className="section-heading">
@@ -384,41 +320,7 @@ function App() {
               </h2>
             </div>
           </div>
-          <div className="credential-list">
-            {certificationsData.map((item, index) => (
-              <article className="credential" key={item.title}>
-                <span className="credential-number">0{index + 1}</span>
-                <div className="credential-icon">
-                  <img
-                    src={item.iconUrl}
-                    alt={`${item.issuer} certification logo`}
-                    width={48}
-                    height={48}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div className="credential-info">
-                  <p>{item.issuer}</p>
-                  <h3>{item.title}</h3>
-                </div>
-                <span className="credential-date">{item.date}</span>
-                {item.credentialUrl !== "#" ? (
-                  <a
-                    className="icon-button"
-                    href={item.credentialUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`View ${item.title} credential`}
-                  >
-                    <ArrowUpRight size={21} />
-                  </a>
-                ) : (
-                  <span className="credential-complete">COMPLETED</span>
-                )}
-              </article>
-            ))}
-          </div>
+          <Credentials paused={paused} />
         </Chapter>
 
         <Chapter
