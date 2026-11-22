@@ -98,7 +98,7 @@ export const skillsData: SkillCategory[] = [
     title: "AI Engineering",
     items: [
       { name: "LLM APIs", icon: BrainCircuit },
-      { name: "Claude Code", icon: Bot },
+      { name: "Claude Code / Codex", icon: Bot },
       { name: "Local AI Models", icon: Cpu },
       { name: "Agentic Workflows", icon: Workflow },
     ],
@@ -134,7 +134,7 @@ export const projectsData: Project[] = [
     liveUrl: "https://uni-eventia-front-end.vercel.app",
     githubUrl: "https://github.com/Fziyen/UniEventia-front-end",
     featured: true,
-    screenshotUrl: "https://i.imgur.com/Fs9oqAD.png",
+    screenshotUrl: "https://i.imgur.com/Nt388Ns.jpeg",
   },
   {
     title: "Fziyen.dev",
@@ -144,7 +144,7 @@ export const projectsData: Project[] = [
     liveUrl: "#",
     githubUrl: "https://github.com/Fziyen/fziyenDotDev",
     featured: true,
-    screenshotUrl: "https://i.imgur.com/c5TMh8h.jpeg",
+    screenshotUrl: "https://i.imgur.com/QvdPBKS.jpeg",
   },
   {
     title: "AlgoVision",
