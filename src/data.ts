@@ -128,13 +128,14 @@ export interface Project {
 
 export const projectsData: Project[] = [
   {
-    title: "UniEventia",
-    description: "A full-featured university event management platform.",
-    tech: ["React", "Node.js", "MongoDB"],
-    liveUrl: "https://uni-eventia-front-end.vercel.app",
-    githubUrl: "https://github.com/Fziyen/UniEventia-front-end",
+    title: "EasyJSON",
+    description:
+      "AI-powered JSON graph editor: fix broken JSON or reshape your data with local AI models.",
+    tech: ["React", "TypeScript", "React Flow", "Local LLMs"],
+    liveUrl: "https://easy-json-rouge.vercel.app/",
+    githubUrl: "https://github.com/Fziyen/EasyJSON",
     featured: true,
-    screenshotUrl: "https://i.imgur.com/Nt388Ns.jpeg",
+    screenshotUrl: "https://i.imgur.com/ZtbQFnV.png",
   },
   {
     title: "Fziyen.dev",
@@ -147,14 +148,13 @@ export const projectsData: Project[] = [
     screenshotUrl: "https://i.imgur.com/QvdPBKS.jpeg",
   },
   {
-    title: "AlgoVision",
-    description:
-      "Modern Website visualizing various sorting algorithms with animations and interactive controls.",
-    tech: ["React", "TypeScript", "Framer Motion"],
-    liveUrl: "https://AlgoVision-Sort.netlify.app",
-    githubUrl: "https://github.com/Fziyen/AlgoVision",
-    featured: false,
-    screenshotUrl: "https://i.imgur.com/xBa8rN9.png",
+    title: "UniEventia",
+    description: "A full-featured university event management platform.",
+    tech: ["React", "Node.js", "MongoDB"],
+    liveUrl: "https://uni-eventia-front-end.vercel.app",
+    githubUrl: "https://github.com/Fziyen/UniEventia-front-end",
+    featured: true,
+    screenshotUrl: "https://i.imgur.com/Nt388Ns.jpeg",
   },
   {
     title: "QR Editor",
@@ -264,8 +264,7 @@ export const experienceEducationData: ExperienceEducationSection = {
       period: "Jan 2023 -> Jun 2025",
       description:
         "Erasmus+ & Double Degree mostly focusing on cloud architecture and AI",
-      logoUrl:
-        "https://storage-prtl-co.imgix.net/endor/organisations/866/logos/1725442892_fileuploads_374525_3875892_183-8e58c08d6aaa0a1860f5c9e220d90f5d_centria_c_512x512.png",
+      logoUrl: "https://i.imgur.com/7sHOIXL.png",
       logoLink: "https://www.centria.fi",
     },
     {
@@ -276,7 +275,7 @@ export const experienceEducationData: ExperienceEducationSection = {
         "Foundation in computer science, algorithms, and software engineering.",
       logoUrl: "https://i.imgur.com/Gry43UQ.png",
       logoLink: "",
-      gpa: "GPA : 16.04 / 20",
+      // gpa: "GPA : 16.04 / 20",
     },
   ],
   work: [
@@ -302,8 +301,7 @@ export const experienceEducationData: ExperienceEducationSection = {
         "Developed and maintained responsive web applications using React and TypeScript.",
         "Contributed to the development of internal dashboards and reporting tools for operational monitoring.",
       ],
-      logoUrl:
-        "https://media.licdn.com/dms/image/v2/D4E0BAQFr2vQpeB-2Hg/company-logo_200_200/B4EZ6C.v0bJAAE-/0/1780313947708/intelcia_logo?e=1796256000&v=beta&t=1p4WE77HSd_KUd5joeVcsW_vLm6joKZERd5Vvz8cuW4",
+      logoUrl: "https://i.imgur.com/lDVHYYi.png",
       logoLink: "",
     },
     {
@@ -314,8 +312,7 @@ export const experienceEducationData: ExperienceEducationSection = {
         "Contributed to web development and digital transformation projects, focusing on e-commerce applications, backend services for mobile apps, data processing and third-party API integrations.",
         "Collaborated with developers to implement application features, troubleshoot technical issues and support ongoing software development activities.",
       ],
-      logoUrl:
-        "https://media.licdn.com/dms/image/v2/C510BAQHVkdQ2a4A-Wg/company-logo_100_100/company-logo_100_100/0/1630583157866/emstell_technology_consulting_logo?e=1796256000&v=beta&t=o9ljp9P7_WWRBxk7KF3Pap2iJICX5-quWl7dLE5B_EA",
+      logoUrl: "https://i.imgur.com/GQY3NDN.png",
       logoLink: "",
     },
   ],
