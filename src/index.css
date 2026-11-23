@@ -1856,3 +1856,38 @@ h1, h2 {
   .bento-skills li { font-size: 13px; }
   .bento-tile.is-tall .bento-skills { gap: 12px; }
 }
+
+/* Tag that hangs beside Helsinki Cathedral's cross in the intro terrain.
+   Terrain.tsx positions it every frame at the cross; it extends to the right. */
+.terrain-tag {
+  position: absolute; left: 0; top: 0; z-index: 1;
+  display: grid; grid-template-columns: auto auto; column-gap: 10px; row-gap: 3px; align-items: center;
+  margin: -14px 0 0 18px; padding: 7px 11px 7px 9px;
+  border: 1px solid #c69cff33; border-radius: 8px; background: #0c0713b3; backdrop-filter: blur(6px);
+  font: 9px monospace; letter-spacing: 1.4px; text-transform: uppercase; color: #a993bd;
+  white-space: nowrap; opacity: 0; pointer-events: none; will-change: transform, opacity;
+}
+/* Leader line from the cross to the tag. */
+.terrain-tag::before { content: ""; position: absolute; right: 100%; top: 50%; width: 16px; height: 1px; background: linear-gradient(90deg, #0000, #e1baff); }
+.terrain-tag-pin { grid-row: span 2; width: 7px; height: 7px; border-radius: 50%; background: #e7c6ff; box-shadow: 0 0 0 3px #b06cf033, 0 0 12px #c58af5; }
+.terrain-tag strong { font-weight: 500; color: #f0e2fb; }
+@media (max-width: 760px) { .terrain-tag { display: none; } }
+
+/* "Based in Helsinki": visually hidden on wide screens (the 3D tag at the
+   cathedral shows it), a holographic location chip above the name on phones. */
+.hero-location { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 760px) {
+  .hero-location {
+    position: static; width: auto; height: auto; overflow: visible; clip: auto;
+    display: inline-flex; align-self: flex-start; align-items: center; gap: 9px;
+    margin: 0 0 18px; padding: 6px 12px 6px 10px;
+    border: 1px solid #c69cff40; border-radius: 999px; background: #140b1fb3; backdrop-filter: blur(8px);
+    font: 500 9.5px monospace; letter-spacing: 1.4px; text-transform: uppercase; color: #f0e2fb;
+  }
+  .hero-location-pin { width: 6px; height: 6px; border-radius: 50%; background: #e7c6ff; box-shadow: 0 0 0 3px #b06cf033, 0 0 10px #c58af5; animation: location-pulse 2.6s ease-in-out infinite; }
+  .hero-location-coords { padding-left: 9px; border-left: 1px solid #c69cff33; color: #a993bd; letter-spacing: 1px; }
+}
+@media (max-width: 760px) { .hero-location-country { display: none; } }
+@media (max-width: 400px) { .hero-location-coords { display: none; } }
+@media (prefers-reduced-motion: reduce) { .hero-location-pin { animation: none; } }
+@keyframes location-pulse { 50% { opacity: 0.5; box-shadow: 0 0 0 5px #b06cf014, 0 0 4px #c58af5; } }

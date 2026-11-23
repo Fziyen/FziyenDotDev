@@ -216,6 +216,13 @@ function App() {
           className="hero-chapter"
           aria-labelledby="intro-title"
         >
+          {/* On wide screens the 3D tag at the cathedral says this, so this
+              line is only read out; on phones it shows as a location chip. */}
+          <p className="hero-location">
+            <span className="hero-location-pin" aria-hidden="true" />
+            Based in Helsinki<span className="hero-location-country">, Finland</span>
+            <span className="hero-location-coords" aria-hidden="true">60.17°N 24.95°E</span>
+          </p>
           <h1 id="intro-title">
             <GlitchyText text={`Hey, I'm ${heroData.name}`} enabled={chapter === 0 && !paused} />
           </h1>

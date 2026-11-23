@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { dismissStartupLoader } from "../../startupLoader";
 import { shouldRenderFrame } from "../../frameGate";
 import type { JourneyMotion } from "../../hooks/useJourneyMotion";
+import { buildCathedral } from "./cathedral";
 
 interface TerrainProps {
   paused: boolean;
@@ -83,6 +84,67 @@ const fragmentShader = `
   }
 `;
 
+// Helsinki Cathedral stands in the terrain beside the intro stop (the camera
+// starts at x 0, z 16 looking towards -z) and assembles itself from dots that
+// rise out of the ground while the intro is in view.
+// Phones get it centred further back, since the screen is narrow.
+const CATHEDRAL_WIDE = { x: 21, y: -4.4, z: -28, yaw: -0.62 };
+const CATHEDRAL_COMPACT = { x: 3, y: -4.2, z: -40, yaw: -0.45 };
+const INTRO = { x: 0, z: 16 };
+const SCALE = 0.84; // design units (about 26 tall) to world units
+
+const cathedralVertex = `
+  attribute vec3 aStart;
+  attribute float aDelay;
+  attribute float aSeed;
+  attribute float aWeight;
+  uniform vec3 uOrigin;
+  uniform float uYaw;
+  uniform float uReveal;
+  uniform float uTime;
+  uniform float uMotion;
+  uniform float uPixelRatio;
+  varying float vAlpha;
+  varying float vHeight;
+  varying float vSeed;
+  void main() {
+    // Each dot sets off at its own delay (low parts first) and arcs up from
+    // the ground into place; reversing uReveal sinks it back down.
+    float t = clamp((uReveal - aDelay * 0.62) / 0.38, 0.0, 1.0);
+    float e = t * t * (3.0 - 2.0 * t);
+    vec3 p = mix(aStart, position, e);
+    p.y += sin(e * 3.14159) * 2.2;
+    p.xz += vec2(sin(aSeed * 40.0), cos(aSeed * 40.0)) * sin(e * 3.14159) * 1.4;
+    // Settled dots keep a faint shimmer, and the odd glitch slice.
+    p += vec3(sin(uTime * 1.3 + aSeed * 31.0), sin(uTime * 1.1 + aSeed * 17.0), cos(uTime * 1.2 + aSeed * 23.0)) * 0.035 * e;
+    float glitch = step(0.992, sin(uTime * 0.9 + 1.7)) * step(0.7, fract(sin(floor(position.y * 2.0) * 91.7 + floor(uTime * 12.0)) * 4375.5));
+    p.x += glitch * 0.6 * uMotion;
+    float c = cos(uYaw), s = sin(uYaw);
+    p = vec3(p.x * c + p.z * s, p.y, -p.x * s + p.z * c) + uOrigin;
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    vHeight = position.y;
+    vSeed = aSeed;
+    float twinkle = 0.72 + 0.28 * sin(uTime * 2.3 + aSeed * 60.0);
+    vAlpha = smoothstep(0.0, 0.3, t) * twinkle * aWeight * (1.0 - smoothstep(60.0, 120.0, length(p.xz)));
+    gl_Position = projectionMatrix * mv;
+    gl_PointSize = clamp((78.0 / max(5.0, -mv.z)) * uPixelRatio, 1.2 * uPixelRatio, 4.0 * uPixelRatio);
+  }
+`;
+const cathedralFragment = `
+  varying float vAlpha;
+  varying float vHeight;
+  varying float vSeed;
+  void main() {
+    float d = length(gl_PointCoord - 0.5) * 2.0;
+    if (d > 1.0) discard;
+    float glow = exp(-d * d * 3.6);
+    // Purple at the plinth to pale lilac at the domes, matching the terrain.
+    vec3 color = mix(vec3(0.42, 0.12, 0.86), vec3(0.93, 0.80, 1.0), smoothstep(1.0, 17.0, vHeight));
+    color += vec3(0.25, 0.18, 0.28) * step(0.97, vSeed);
+    gl_FragColor = vec4(color, glow * vAlpha * 0.85);
+  }
+`;
+
 export default function Terrain({ journey, paused }: TerrainProps) {
   const host = useRef<HTMLDivElement>(null);
   const pauseRef = useRef(paused);
@@ -138,6 +200,50 @@ export default function Terrain({ journey, paused }: TerrainProps) {
     const terrain = new THREE.Points(geometry, material);
     terrain.frustumCulled = false;
     scene.add(terrain);
+
+    const CATHEDRAL = compact ? CATHEDRAL_COMPACT : CATHEDRAL_WIDE;
+    // The side facing the intro camera is drawn brightest: express the
+    // direction to the camera in the model's own (un-rotated) space.
+    const toCameraX = INTRO.x - CATHEDRAL.x, toCameraZ = INTRO.z - CATHEDRAL.z;
+    const yawCos = Math.cos(CATHEDRAL.yaw), yawSin = Math.sin(CATHEDRAL.yaw);
+    const model = buildCathedral(compact ? 0.65 : 1, SCALE, [
+      toCameraX * yawCos - toCameraZ * yawSin,
+      toCameraX * yawSin + toCameraZ * yawCos,
+    ]);
+    const cathedralGeometry = new THREE.BufferGeometry();
+    cathedralGeometry.setAttribute("position", new THREE.BufferAttribute(model.target, 3));
+    cathedralGeometry.setAttribute("aStart", new THREE.BufferAttribute(model.start, 3));
+    cathedralGeometry.setAttribute("aDelay", new THREE.BufferAttribute(model.delay, 1));
+    cathedralGeometry.setAttribute("aSeed", new THREE.BufferAttribute(model.seed, 1));
+    cathedralGeometry.setAttribute("aWeight", new THREE.BufferAttribute(model.weight, 1));
+    const cathedralMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uOrigin: { value: new THREE.Vector3() },
+        uYaw: { value: CATHEDRAL.yaw },
+        uReveal: { value: 0 },
+        uTime: { value: 0 },
+        uMotion: { value: 1 },
+        uPixelRatio: { value: 1 },
+      },
+      vertexShader: cathedralVertex,
+      fragmentShader: cathedralFragment,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const cathedral = new THREE.Points(cathedralGeometry, cathedralMaterial);
+    cathedral.frustumCulled = false;
+    cathedral.visible = false;
+    scene.add(cathedral);
+    let reveal = 0;
+
+    // A small holographic tag that hangs beside the dome's cross.
+    const tag = document.createElement("div");
+    tag.className = "terrain-tag";
+    tag.innerHTML = '<span class="terrain-tag-pin"></span><strong>Based in Helsinki</strong><span>60.17° N · 24.95° E</span>';
+    container.appendChild(tag);
+    const anchor = new THREE.Vector3();
+
     container.appendChild(renderer.domElement);
     renderer.domElement.setAttribute("aria-hidden", "true");
     let needsRender = true;
@@ -149,6 +255,7 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+      cathedralMaterial.uniforms.uPixelRatio.value = renderer.getPixelRatio();
     };
     const contextLost = (event: Event) => {
       event.preventDefault();
@@ -179,7 +286,10 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       if (document.hidden) return;
       const moving = !pauseRef.current;
       const pose = journey.current;
-      if (!moving && wasPaused && !needsRender && pose.version === renderedVersion) return;
+      // The cathedral shows while the camera is at the intro stop.
+      const atIntro = Math.hypot(pose.x - INTRO.x, pose.z - INTRO.z) < 6 ? 1 : 0;
+      const settling = reveal !== atIntro;
+      if (!moving && wasPaused && !needsRender && !settling && pose.version === renderedVersion) return;
       wasPaused = !moving;
       needsRender = false;
       renderedVersion = pose.version;
@@ -192,6 +302,28 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       (material.uniforms.uForward.value as THREE.Vector2).set(Math.sin(pose.heading), -Math.cos(pose.heading));
       material.uniforms.uTime.value = time;
       material.uniforms.uMotion.value = moving ? 1 : 0;
+
+      // Rise slowly, sink faster; with motion off it simply appears.
+      if (!moving) reveal = atIntro;
+      else if (atIntro > reveal) reveal = Math.min(1, reveal + dt * 0.4);
+      else if (atIntro < reveal) reveal = Math.max(0, reveal - dt * 0.9);
+      cathedral.visible = reveal > 0;
+      if (cathedral.visible) {
+        const origin = cathedralMaterial.uniforms.uOrigin.value as THREE.Vector3;
+        origin.set(CATHEDRAL.x - pose.x, CATHEDRAL.y, CATHEDRAL.z - pose.z);
+        cathedralMaterial.uniforms.uReveal.value = reveal;
+        cathedralMaterial.uniforms.uTime.value = time;
+        cathedralMaterial.uniforms.uMotion.value = moving ? 1 : 0;
+        // Pin the tag beside the main cross (26 design units up).
+        anchor.set(origin.x, origin.y + 26 * SCALE, origin.z);
+        camera.updateMatrixWorld();
+        anchor.project(camera);
+        const shown = anchor.z < 1 ? Math.max(0, (reveal - 0.75) / 0.25) : 0;
+        tag.style.opacity = shown.toFixed(3);
+        tag.style.transform = `translate(${((anchor.x + 1) / 2) * window.innerWidth}px, ${((1 - anchor.y) / 2) * window.innerHeight}px)`;
+      } else if (tag.style.opacity !== "0") {
+        tag.style.opacity = "0";
+      }
       renderer.render(scene, camera);
       if (firstFrame) {
         firstFrame = false;
@@ -209,6 +341,9 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       );
       geometry.dispose();
       material.dispose();
+      cathedralGeometry.dispose();
+      cathedralMaterial.dispose();
+      tag.remove();
       renderer.dispose();
       // Release the GL context now instead of waiting for garbage collection
       // (React StrictMode and remounts would otherwise stack live contexts).
