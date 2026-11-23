@@ -16,6 +16,8 @@ const vertexShader = `
   uniform float uPixelRatio;
   uniform float uMotion;
   uniform vec2 uForward;
+  // Senate Square: x, z, ground height and how far it has levelled (0..1).
+  uniform vec4 uPlaza;
   varying float vDepth;
   varying float vHeight;
   varying float vSpark;
@@ -51,6 +53,10 @@ const vertexShader = `
     valley *= smoothstep(8.0, 36.0, flatDepth);
     p.y = pow(n, 1.8) * 28.0 * valley - 5.0;
     p.y += sin(world.x * 0.18 + world.y * 0.04) * 0.45;
+    // Around the cathedral the hills level out into a flat square for it to
+    // stand on, blending back into the terrain over a wide margin.
+    float plaza = (1.0 - smoothstep(16.0, 34.0, length(world - uPlaza.xy))) * uPlaza.w;
+    p.y = mix(p.y, uPlaza.z, plaza);
     float glitch = step(0.985, sin(uTime * 0.7)) * step(0.83, noise(vec2(floor(p.z * 0.6), floor(uTime * 9.0))));
     p.x += glitch * sin(uTime * 70.0) * 0.75 * uMotion;
     // Idle hover: a slow swell rolls across the terrain while every dot bobs
@@ -85,20 +91,24 @@ const fragmentShader = `
 `;
 
 // Helsinki Cathedral stands in the terrain beside the intro stop (the camera
-// starts at x 0, z 16 looking towards -z) and assembles itself from dots that
-// rise out of the ground while the intro is in view.
+// starts at x 0, z 16 looking towards -z). It builds itself from dots once,
+// when the app loads, and then stays in the landscape for the whole visit.
 // Phones get it centred further back, since the screen is narrow.
 const CATHEDRAL_WIDE = { x: 21, y: -4.4, z: -28, yaw: -0.62 };
 const CATHEDRAL_COMPACT = { x: 3, y: -4.2, z: -40, yaw: -0.45 };
 const INTRO = { x: 0, z: 16 };
 const SCALE = 0.84; // design units (about 26 tall) to world units
 
+// The cathedral's dots are drawn exactly like the terrain's: same size
+// falloff, same height-based colour, same fog, and they share the terrain's
+// idle swell, so the building reads as part of the landscape.
 const cathedralVertex = `
   attribute vec3 aStart;
   attribute float aDelay;
   attribute float aSeed;
   attribute float aWeight;
   uniform vec3 uOrigin;
+  uniform vec2 uWorldPosition;
   uniform float uYaw;
   uniform float uReveal;
   uniform float uTime;
@@ -106,42 +116,45 @@ const cathedralVertex = `
   uniform float uPixelRatio;
   varying float vAlpha;
   varying float vHeight;
-  varying float vSeed;
+  varying float vDepth;
+  varying float vSpark;
   void main() {
-    // Each dot sets off at its own delay (low parts first) and arcs up from
-    // the ground into place; reversing uReveal sinks it back down.
+    // Each dot leaves the square at its own delay (low parts first) and
+    // drifts up into place.
     float t = clamp((uReveal - aDelay * 0.62) / 0.38, 0.0, 1.0);
     float e = t * t * (3.0 - 2.0 * t);
     vec3 p = mix(aStart, position, e);
-    p.y += sin(e * 3.14159) * 2.2;
-    p.xz += vec2(sin(aSeed * 40.0), cos(aSeed * 40.0)) * sin(e * 3.14159) * 1.4;
-    // Settled dots keep a faint shimmer, and the odd glitch slice.
-    p += vec3(sin(uTime * 1.3 + aSeed * 31.0), sin(uTime * 1.1 + aSeed * 17.0), cos(uTime * 1.2 + aSeed * 23.0)) * 0.035 * e;
-    float glitch = step(0.992, sin(uTime * 0.9 + 1.7)) * step(0.7, fract(sin(floor(position.y * 2.0) * 91.7 + floor(uTime * 12.0)) * 4375.5));
-    p.x += glitch * 0.6 * uMotion;
+    p.y += sin(e * 3.14159) * 1.2;
     float c = cos(uYaw), s = sin(uYaw);
     p = vec3(p.x * c + p.z * s, p.y, -p.x * s + p.z * c) + uOrigin;
+    // The terrain's idle motion: the same slow swell, plus a small bob.
+    vec2 world = p.xz + uWorldPosition;
+    p.y += sin(world.x * 0.11 + world.y * 0.08 + uTime * 0.55) * 0.3;
+    p += vec3(sin(uTime * 0.47 + aSeed * 11.0), sin(uTime * 0.9 + aSeed * 6.3), cos(uTime * 0.39 + aSeed * 8.1)) * 0.04;
+    float glitch = step(0.985, sin(uTime * 0.7)) * step(0.83, fract(sin(floor(p.z * 0.6) * 91.7 + floor(uTime * 9.0)) * 4375.5));
+    p.x += glitch * sin(uTime * 70.0) * 0.75 * uMotion;
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
-    vHeight = position.y;
-    vSeed = aSeed;
-    float twinkle = 0.72 + 0.28 * sin(uTime * 2.3 + aSeed * 60.0);
-    vAlpha = smoothstep(0.0, 0.3, t) * twinkle * aWeight * (1.0 - smoothstep(60.0, 120.0, length(p.xz)));
+    vHeight = p.y;
+    vDepth = length(p.xz);
+    vSpark = aSeed;
+    vAlpha = smoothstep(0.0, 0.35, t) * aWeight;
     gl_Position = projectionMatrix * mv;
-    gl_PointSize = clamp((78.0 / max(5.0, -mv.z)) * uPixelRatio, 1.2 * uPixelRatio, 4.0 * uPixelRatio);
+    gl_PointSize = clamp((80.0 / max(5.0, -mv.z)) * uPixelRatio, 1.0 * uPixelRatio, 4.5 * uPixelRatio);
   }
 `;
 const cathedralFragment = `
   varying float vAlpha;
   varying float vHeight;
-  varying float vSeed;
+  varying float vDepth;
+  varying float vSpark;
   void main() {
     float d = length(gl_PointCoord - 0.5) * 2.0;
     if (d > 1.0) discard;
-    float glow = exp(-d * d * 3.6);
-    // Purple at the plinth to pale lilac at the domes, matching the terrain.
-    vec3 color = mix(vec3(0.42, 0.12, 0.86), vec3(0.93, 0.80, 1.0), smoothstep(1.0, 17.0, vHeight));
-    color += vec3(0.25, 0.18, 0.28) * step(0.97, vSeed);
-    gl_FragColor = vec4(color, glow * vAlpha * 0.85);
+    float glow = exp(-d * d * 3.8);
+    vec3 color = mix(vec3(0.30, 0.045, 0.80), vec3(0.81, 0.44, 1.0), smoothstep(-4.0, 9.0, vHeight));
+    color += vec3(0.28, 0.17, 0.30) * step(0.985, vSpark);
+    float fog = 1.0 - smoothstep(35.0, 135.0, vDepth);
+    gl_FragColor = vec4(color, glow * fog * vAlpha * 0.62);
   }
 `;
 
@@ -190,6 +203,7 @@ export default function Terrain({ journey, paused }: TerrainProps) {
         uPixelRatio: { value: 1 },
         uMotion: { value: 1 },
         uForward: { value: new THREE.Vector2(0, -1) },
+        uPlaza: { value: new THREE.Vector4(0, 0, 0, 0) },
       },
       vertexShader,
       fragmentShader,
@@ -219,6 +233,7 @@ export default function Terrain({ journey, paused }: TerrainProps) {
     const cathedralMaterial = new THREE.ShaderMaterial({
       uniforms: {
         uOrigin: { value: new THREE.Vector3() },
+        uWorldPosition: { value: new THREE.Vector2() },
         uYaw: { value: CATHEDRAL.yaw },
         uReveal: { value: 0 },
         uTime: { value: 0 },
@@ -235,7 +250,9 @@ export default function Terrain({ journey, paused }: TerrainProps) {
     cathedral.frustumCulled = false;
     cathedral.visible = false;
     scene.add(cathedral);
+    // The cathedral builds itself once, when the app loads, and then stays.
     let reveal = 0;
+    let tagLevel = 0;
 
     // A small holographic tag that hangs beside the dome's cross.
     const tag = document.createElement("div");
@@ -286,9 +303,9 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       if (document.hidden) return;
       const moving = !pauseRef.current;
       const pose = journey.current;
-      // The cathedral shows while the camera is at the intro stop.
+      // The tag only belongs to the intro view.
       const atIntro = Math.hypot(pose.x - INTRO.x, pose.z - INTRO.z) < 6 ? 1 : 0;
-      const settling = reveal !== atIntro;
+      const settling = reveal < 1 || tagLevel !== atIntro;
       if (!moving && wasPaused && !needsRender && !settling && pose.version === renderedVersion) return;
       wasPaused = !moving;
       needsRender = false;
@@ -303,22 +320,26 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       material.uniforms.uTime.value = time;
       material.uniforms.uMotion.value = moving ? 1 : 0;
 
-      // Rise slowly, sink faster; with motion off it simply appears.
-      if (!moving) reveal = atIntro;
-      else if (atIntro > reveal) reveal = Math.min(1, reveal + dt * 0.4);
-      else if (atIntro < reveal) reveal = Math.max(0, reveal - dt * 0.9);
+      // About two and a half seconds to build; with motion off it simply appears.
+      reveal = moving ? Math.min(1, reveal + dt * 0.4) : 1;
+      tagLevel = moving
+        ? atIntro > tagLevel ? Math.min(1, tagLevel + dt * 2.5) : Math.max(0, tagLevel - dt * 4)
+        : atIntro;
       cathedral.visible = reveal > 0;
+      // The square levels out a little ahead of the building rising.
+      (material.uniforms.uPlaza.value as THREE.Vector4).set(CATHEDRAL.x, CATHEDRAL.z, CATHEDRAL.y, Math.min(1, reveal * 2.5));
       if (cathedral.visible) {
         const origin = cathedralMaterial.uniforms.uOrigin.value as THREE.Vector3;
         origin.set(CATHEDRAL.x - pose.x, CATHEDRAL.y, CATHEDRAL.z - pose.z);
         cathedralMaterial.uniforms.uReveal.value = reveal;
+        (cathedralMaterial.uniforms.uWorldPosition.value as THREE.Vector2).set(pose.x, pose.z);
         cathedralMaterial.uniforms.uTime.value = time;
         cathedralMaterial.uniforms.uMotion.value = moving ? 1 : 0;
         // Pin the tag beside the main cross (26 design units up).
         anchor.set(origin.x, origin.y + 26 * SCALE, origin.z);
         camera.updateMatrixWorld();
         anchor.project(camera);
-        const shown = anchor.z < 1 ? Math.max(0, (reveal - 0.75) / 0.25) : 0;
+        const shown = anchor.z < 1 ? Math.max(0, (reveal - 0.85) / 0.15) * tagLevel : 0;
         tag.style.opacity = shown.toFixed(3);
         tag.style.transform = `translate(${((anchor.x + 1) / 2) * window.innerWidth}px, ${((1 - anchor.y) / 2) * window.innerHeight}px)`;
       } else if (tag.style.opacity !== "0") {

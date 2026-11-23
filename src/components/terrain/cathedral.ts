@@ -19,7 +19,7 @@ type Point = { x: number; y: number; z: number; w: number };
 export interface CathedralCloud {
   /** Final positions (local space). */
   target: Float32Array;
-  /** Where each dot starts, scattered on the ground around the building. */
+  /** Where each dot starts, lying on the square around the footprint. */
   start: Float32Array;
   /** 0..1, when each dot sets off: low parts first, with some jitter. */
   delay: Float32Array;
@@ -170,13 +170,11 @@ function arm(b: Builder, angle: number) {
 
   const fill = (o: number[], p: number[], q: number[], density: number) => b.plane(o, sub(p, o), sub(q, o), density);
 
-  // Podium outline under this side: the portico platform, then the block.
-  for (const y of [0, BASE]) {
-    L(-CORE - 0.6, y, PODIUM, CORE + 0.6, y, PODIUM);
-    for (const u of [-CORE - 0.6, CORE + 0.6]) L(u, y, PODIUM, u, y, BLOCK + 0.6);
-    L(-BLOCK - 0.6, y, BLOCK + 0.6, -CORE - 0.6, y, BLOCK + 0.6);
-    L(CORE + 0.6, y, BLOCK + 0.6, BLOCK + 0.6, y, BLOCK + 0.6);
-  }
+  // Plinth line where this side meets the terrace.
+  L(-CORE - 0.4, BASE + 0.35, PODIUM - 0.4, CORE + 0.4, BASE + 0.35, PODIUM - 0.4, 0.8, 0.7);
+  for (const u of [-CORE - 0.4, CORE + 0.4]) L(u, BASE + 0.35, PODIUM - 0.4, u, BASE + 0.35, BLOCK + 0.3, 0.8, 0.7);
+  L(-BLOCK - 0.3, BASE + 0.35, BLOCK + 0.3, -CORE - 0.4, BASE + 0.35, BLOCK + 0.3, 0.8, 0.7);
+  L(CORE + 0.4, BASE + 0.35, BLOCK + 0.3, BLOCK + 0.3, BASE + 0.35, BLOCK + 0.3, 0.8, 0.7);
 
   // The block's wall on this side, either side of the arm: plain ashlar with
   // corner pilasters, one tall window each, a cornice and a low parapet.
@@ -260,20 +258,55 @@ function arm(b: Builder, angle: number) {
 function buildModel(step: number): Point[] {
   const b = new Builder(step);
 
-  // The monumental stairs down to Senate Square, in front of the south arm.
-  const steps = 14;
-  for (let i = 0; i < steps; i++) {
-    const y = BASE * (1 - (i + 1) / steps);
-    const z = PODIUM + (i + 1) * 0.52;
-    const half = CORE + 1.2 + i * 0.18;
-    b.line(-half, y, z, half, y, z, 1.1);
-    b.line(-half, y + BASE / steps, z - 0.52, -half, y, z, 1);
-    b.line(half, y + BASE / steps, z - 0.52, half, y, z, 1);
+  // The cathedral stands on a raised granite terrace. Its front edge drops
+  // to Senate Square in one long, very wide, straight flight of steps
+  // (nearly the width of the building) between low granite cheek walls.
+  const T = BLOCK + 3.4; // terrace half-width (sides and back)
+  const F = PODIUM + 1.2; // front edge of the terrace, top of the stairs
+  const W = BLOCK - 0.2; // half-width of the flight
+  const STEPS = 22;
+  const RUN = 8.4; // horizontal length of the flight
+  const tread = RUN / STEPS, riser = BASE / STEPS;
+
+  // Terrace: top and bottom outlines, corners, retaining walls and top fill.
+  for (const y of [0, BASE]) {
+    b.line(-T, y, -T, T, y, -T);
+    b.line(-T, y, -T, -T, y, F);
+    b.line(T, y, -T, T, y, F);
+    b.line(-T, y, F, -W - 0.6, y, F);
+    b.line(W + 0.6, y, F, T, y, F);
   }
-  // Stair cheek walls.
+  b.line(-T, BASE + 0.3, F, -W - 0.6, BASE + 0.3, F, 0.8, 0.7);
+  b.line(W + 0.6, BASE + 0.3, F, T, BASE + 0.3, F, 0.8, 0.7);
+  for (const [x, z] of [[-T, -T], [T, -T], [-T, F], [T, F]]) b.line(x, 0, z, x, BASE, z);
+  b.plane([-T, 0, F], [T - W - 0.6, 0, 0], [0, BASE, 0], 0.2);
+  b.plane([W + 0.6, 0, F], [T - W - 0.6, 0, 0], [0, BASE, 0], 0.2);
+  b.plane([-T, 0, -T], [0, 0, F + T], [0, BASE, 0], 0.16);
+  b.plane([T, 0, -T], [0, 0, F + T], [0, BASE, 0], 0.16);
+
+
+  // The steps: one crisp line along each nosing, spaced so they read as
+  // separate steps from a distance (no surface fill between them).
+  for (let i = 0; i <= STEPS; i++) {
+    const z = F + i * tread;
+    const y = BASE - i * riser;
+    b.line(-W, y, z, W, y, z, 1.1);
+  }
+
+  // Granite cheek walls: a sloping coping above each side of the flight,
+  // their base on the steps, and square end blocks at the bottom.
   for (const side of [-1, 1]) {
-    const outer = CORE + 1.2 + steps * 0.18;
-    b.line(side * (CORE + 1.2), BASE + 0.4, PODIUM, side * outer, 0.4, PODIUM + steps * 0.52, 1.2);
+    const x0 = side * W, x1 = side * (W + 0.6);
+    for (const x of [x0, x1]) {
+      b.line(x, BASE + 0.55, F, x, 0.55, F + RUN, 1.2);
+      b.line(x, BASE, F, x, 0, F + RUN, 0.9, 0.7);
+    }
+    b.line(x0, 0.55, F + RUN, x1, 0.55, F + RUN);
+    for (const x of [x0, x1]) b.line(x, 0, F + RUN, x, 0.9, F + RUN);
+    b.line(x0, 0.9, F + RUN, x1, 0.9, F + RUN);
+    // Outer face of the wall, which slopes down with the flight.
+    b.triangle([x1, 0, F], [x1, BASE + 0.55, F], [x1, 0.55, F + RUN], 0.08);
+    b.triangle([x1, 0, F], [x1, 0.55, F + RUN], [x1, 0, F + RUN], 0.08);
   }
 
   // The four arms with their porticoes, and the block walls between them.
@@ -370,18 +403,18 @@ export function buildCathedral(detail = 1, scale = 0.72, view: [number, number] 
   const weight = new Float32Array(count);
   const length = Math.hypot(view[0], view[1]) || 1;
   const vx = view[0] / length, vz = view[1] / length;
-  const reach = ARM + PORTICO + 4;
+  const reach = ARM + PORTICO + 8;
   for (let i = 0; i < count; i++) {
     const { x, y, z, w } = model[i];
     const jitter = 0.035;
     target[i * 3] = (x + (random() - 0.5) * jitter) * scale;
     target[i * 3 + 1] = (y + (random() - 0.5) * jitter) * scale;
     target[i * 3 + 2] = (z + (random() - 0.5) * jitter) * scale;
-    // Start on the ground in a wide disc around the footprint.
+    // Start as dots lying on the square around the footprint.
     const angle = random() * TAU;
     const radius = 3 + Math.sqrt(random()) * 16;
     start[i * 3] = x * scale * 0.4 + Math.cos(angle) * radius;
-    start[i * 3 + 1] = -1.5 - random() * 2;
+    start[i * 3 + 1] = (random() - 0.5) * 0.3;
     start[i * 3 + 2] = z * scale * 0.4 + Math.sin(angle) * radius;
     // Build from the ground up.
     delay[i] = Math.min(1, (y / 26) * 0.75 + random() * 0.25);
