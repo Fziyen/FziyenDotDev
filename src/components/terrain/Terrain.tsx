@@ -215,7 +215,10 @@ export default function Terrain({ journey, paused }: TerrainProps) {
     terrain.frustumCulled = false;
     scene.add(terrain);
 
-    const CATHEDRAL = compact ? CATHEDRAL_COMPACT : CATHEDRAL_WIDE;
+    // Placement follows the window width (re-picked on resize), so a window
+    // that starts narrow and is widened gets the desktop spot.
+    const placeFor = () => (window.innerWidth < 768 ? CATHEDRAL_COMPACT : CATHEDRAL_WIDE);
+    let CATHEDRAL = placeFor();
     // The side facing the intro camera is drawn brightest: express the
     // direction to the camera in the model's own (un-rotated) space.
     const toCameraX = INTRO.x - CATHEDRAL.x, toCameraZ = INTRO.z - CATHEDRAL.z;
@@ -273,6 +276,8 @@ export default function Terrain({ journey, paused }: TerrainProps) {
       camera.updateProjectionMatrix();
       material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
       cathedralMaterial.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+      CATHEDRAL = placeFor();
+      cathedralMaterial.uniforms.uYaw.value = CATHEDRAL.yaw;
     };
     const contextLost = (event: Event) => {
       event.preventDefault();

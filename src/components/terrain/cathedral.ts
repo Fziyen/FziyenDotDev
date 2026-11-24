@@ -264,49 +264,57 @@ function buildModel(step: number): Point[] {
   const T = BLOCK + 3.4; // terrace half-width (sides and back)
   const F = PODIUM + 1.2; // front edge of the terrace, top of the stairs
   const W = BLOCK - 0.2; // half-width of the flight
-  const STEPS = 22;
+  const STEPS = 18;
   const RUN = 8.4; // horizontal length of the flight
   const tread = RUN / STEPS, riser = BASE / STEPS;
+  // Detail thins out towards the ground: the top of the terrace and the
+  // upper steps are drawn fairly crisply, and each lower step gets sparser
+  // and fainter, so the base dissolves into the terrain instead of ending
+  // in a hard bright edge.
+  const byHeight = (y: number) => {
+    const t = Math.max(0, Math.min(1, y / BASE));
+    return { density: lerp(0.5, 1.15, t), weight: lerp(0.55, 1.0, t) };
+  };
 
-  // Terrace: top and bottom outlines, corners, retaining walls and top fill.
-  for (const y of [0, BASE]) {
-    b.line(-T, y, -T, T, y, -T);
-    b.line(-T, y, -T, -T, y, F);
-    b.line(T, y, -T, T, y, F);
-    b.line(-T, y, F, -W - 0.6, y, F);
-    b.line(W + 0.6, y, F, T, y, F);
+  // Terrace: crisp top edge, faint base edge, corner posts and a light fill
+  // on the front retaining walls either side of the stairs.
+  const top = byHeight(BASE), bottom = byHeight(0);
+  for (const [y, look] of [[BASE, top], [0, bottom]] as const) {
+    b.line(-T, y, -T, T, y, -T, look.density, look.weight);
+    b.line(-T, y, -T, -T, y, F, look.density, look.weight);
+    b.line(T, y, -T, T, y, F, look.density, look.weight);
+    b.line(-T, y, F, -W - 0.6, y, F, look.density, look.weight);
+    b.line(W + 0.6, y, F, T, y, F, look.density, look.weight);
   }
-  b.line(-T, BASE + 0.3, F, -W - 0.6, BASE + 0.3, F, 0.8, 0.7);
-  b.line(W + 0.6, BASE + 0.3, F, T, BASE + 0.3, F, 0.8, 0.7);
-  for (const [x, z] of [[-T, -T], [T, -T], [-T, F], [T, F]]) b.line(x, 0, z, x, BASE, z);
-  b.plane([-T, 0, F], [T - W - 0.6, 0, 0], [0, BASE, 0], 0.2);
-  b.plane([W + 0.6, 0, F], [T - W - 0.6, 0, 0], [0, BASE, 0], 0.2);
-  b.plane([-T, 0, -T], [0, 0, F + T], [0, BASE, 0], 0.16);
-  b.plane([T, 0, -T], [0, 0, F + T], [0, BASE, 0], 0.16);
+  b.line(-T, BASE + 0.3, F, -W - 0.6, BASE + 0.3, F, 0.6, 0.6);
+  b.line(W + 0.6, BASE + 0.3, F, T, BASE + 0.3, F, 0.6, 0.6);
+  for (const [x, z] of [[-T, -T], [T, -T], [-T, F], [T, F]]) b.line(x, 0, z, x, BASE, z, 0.7, 0.6);
+  b.plane([-T, 0, F], [T - W - 0.6, 0, 0], [0, BASE, 0], 0.07);
+  b.plane([W + 0.6, 0, F], [T - W - 0.6, 0, 0], [0, BASE, 0], 0.07);
+  b.plane([-T, 0, -T], [0, 0, F + T], [0, BASE, 0], 0.05);
+  b.plane([T, 0, -T], [0, 0, F + T], [0, BASE, 0], 0.05);
 
-
-  // The steps: one crisp line along each nosing, spaced so they read as
-  // separate steps from a distance (no surface fill between them).
+  // The steps: one line along each nosing, sparser and fainter lower down.
   for (let i = 0; i <= STEPS; i++) {
     const z = F + i * tread;
     const y = BASE - i * riser;
-    b.line(-W, y, z, W, y, z, 1.1);
+    const look = byHeight(y);
+    b.line(-W, y, z, W, y, z, look.density, look.weight);
   }
 
-  // Granite cheek walls: a sloping coping above each side of the flight,
-  // their base on the steps, and square end blocks at the bottom.
+  // Cheek walls: the sloping coping, drawn in short pieces so it fades with
+  // height too, and the end blocks at the foot of the flight.
   for (const side of [-1, 1]) {
-    const x0 = side * W, x1 = side * (W + 0.6);
-    for (const x of [x0, x1]) {
-      b.line(x, BASE + 0.55, F, x, 0.55, F + RUN, 1.2);
-      b.line(x, BASE, F, x, 0, F + RUN, 0.9, 0.7);
+    for (const x of [side * W, side * (W + 0.6)]) {
+      const pieces = 6;
+      for (let k = 0; k < pieces; k++) {
+        const t0 = k / pieces, t1 = (k + 1) / pieces;
+        const look = byHeight(BASE * (1 - (t0 + t1) / 2));
+        b.line(x, BASE + 0.5 - BASE * t0, F + RUN * t0, x, BASE + 0.5 - BASE * t1, F + RUN * t1, look.density, look.weight);
+      }
+      b.line(x, 0, F + RUN, x, 0.8, F + RUN, bottom.density, bottom.weight);
     }
-    b.line(x0, 0.55, F + RUN, x1, 0.55, F + RUN);
-    for (const x of [x0, x1]) b.line(x, 0, F + RUN, x, 0.9, F + RUN);
-    b.line(x0, 0.9, F + RUN, x1, 0.9, F + RUN);
-    // Outer face of the wall, which slopes down with the flight.
-    b.triangle([x1, 0, F], [x1, BASE + 0.55, F], [x1, 0.55, F + RUN], 0.08);
-    b.triangle([x1, 0, F], [x1, 0.55, F + RUN], [x1, 0, F + RUN], 0.08);
+    b.line(side * W, 0.8, F + RUN, side * (W + 0.6), 0.8, F + RUN, bottom.density, bottom.weight);
   }
 
   // The four arms with their porticoes, and the block walls between them.
@@ -421,7 +429,10 @@ export function buildCathedral(detail = 1, scale = 0.72, view: [number, number] 
     seed[i] = random();
     // Near side bright, far side about 40%: the facade reads over the back.
     const facing = Math.max(-1, Math.min(1, (x * vx + z * vz) / reach));
-    weight[i] = w * lerp(0.4, 1, (facing + 1) / 2);
+    // The base fades gently into the ground: a little dimmer at the foot,
+    // full brightness from the upper walls up.
+    const rise = Math.max(0, Math.min(1, y / (BASE + 5)));
+    weight[i] = w * lerp(0.4, 1, (facing + 1) / 2) * lerp(0.7, 1, rise * rise * (3 - 2 * rise));
   }
   return { target, start, delay, seed, weight, count };
 }
