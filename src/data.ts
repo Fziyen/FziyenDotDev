@@ -157,14 +157,14 @@ export const projectsData: Project[] = [
     screenshotUrl: "https://i.imgur.com/Nt388Ns.jpeg",
   },
   {
-    title: "QR Editor",
+    title: "FinSmartDoc",
     description:
-      "A web application that generates customizable QR codes for URLs, text, and other data types.",
+      "A document Q&A app that answers questions about your PDFs, Word files and spreadsheets, with citations to the exact source. You choose the AI: Claude in the cloud, or a local model on your own machine, so your documents never have to leave it.",
     tech: ["React", "TypeScript", "Vite"],
-    liveUrl: "https://qr-codemaker.netlify.app",
-    githubUrl: "https://github.com/Fziyen/QR-Editor",
+    liveUrl: "https://fin-smart-doc.vercel.app",
+    githubUrl: "https://github.com/Fziyen/finsmartdoc",
     featured: false,
-    screenshotUrl: "https://i.imgur.com/JAdgj9e.png",
+    screenshotUrl: "https://i.imgur.com/ihq1DkR.png",
   },
   {
     title: "FinnTrain Tracker",
