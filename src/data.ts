@@ -172,7 +172,7 @@ export const projectsData: Project[] = [
       "A web application for tracking Finnish train services and schedules.",
     tech: ["Next.js", "TypeScript", "Vercel"],
     liveUrl: "#",
-    githubUrl: "https://github.com/fziyen",
+    githubUrl: "https://github.com/Fziyen/finntraintrack",
     featured: false,
     screenshotUrl:
       "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fthb.tildacdn.net%2Ftild3864-3132-4334-b965-633866366534%2F-%2Fresize%2F504x%2Fpointgr_InterCity_tr.png&f=1&nofb=1&ipt=528dff5307231c27fc8fc9cbdce3877fe34b39c74ab93539f63cc27013ee6936",
